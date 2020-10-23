@@ -16,7 +16,7 @@ typedef struct s_imagen_fantasma_params {
 	int offsetx, offsety;
 } imagen_fantasma_params_t;
 
-imagen_fantasma_params_t extra;
+static imagen_fantasma_params_t extra;
 
 void leer_params_ImagenFantasma(configuracion_t *config, int argc, char *argv[]) {
 	config->extra_config = &extra;

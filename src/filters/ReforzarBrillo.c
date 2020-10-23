@@ -16,7 +16,7 @@ typedef struct s_reforzar_brillo_params {
 	int umbralSup, umbralInf, brilloSup, brilloInf;
 } reforzar_brillo_params_t;
 
-reforzar_brillo_params_t extra;
+static reforzar_brillo_params_t extra;
 
 void leer_params_ReforzarBrillo(configuracion_t *config, int argc, char *argv[]) {
 	config->extra_config = &extra;
