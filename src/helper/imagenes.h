@@ -6,7 +6,7 @@
 #include "libbmp.h"
 #include "utils.h"
 
-BMP *src_img, *src_img2, *dst_img;
+extern BMP *src_img, *src_img2, *dst_img;
 
 void imagenes_abrir(configuracion_t *config);
 void imagenes_guardar(configuracion_t *config);
