@@ -37,30 +37,48 @@ ImagenFantasma_asm:
 	mov r12, rsi						; r12  = dst
 	mov r13d, edx						; r13d = width 
 	mov r14d, ecx						; r14d = height
-	xor r8, r8							; indice i
-	xor r9, r9							; indece j
+	mov edx, [rbp + 16]
+	mov ecx, [rbp + 24]
+	xor r8, r8							; r8d  = indice i
+	xor r9, r9							; r9d  = indece j
 	; rdx, rcx, r15 libres
 	movdqa xmm15, [extiende_y_copia_green_pixeles_bajos]	; mascara para copiar componente green en transparencia y extender las componentes de bytes a DW de los primeros 2 pixeles
 	movdqa xmm14, [extiende_y_copia_green_pixeles_altos]	; mismo que arriba para los siguientes 2 pixeles
 
 
-
+	mov rsi, rdi
 	.ciclo:
-		
-		mov edx, r8d						;
-		shr edx, 1							; edx  = i/2
-		mov r15d, [rbp + 16]				; r15d = offset x
-		add edx, r15d						; edx  = i/2 + offset x 
+		mov rdi, rbx
+		mov rsi, rbx
+		lea rdi, [rdi + r15d*4]				; rdi = dir + n*4      <- al tamanio de la fila le multiplico el tamanio de un dato
+		lea rsi, [rsi + rdx*4]				; rsi = ii, en este caso rdx empieza con el offset x y se le va sumando width 
 		
 		.cicloHorizontal
-			mov ecx, r9d
-			shr ecx, 1
-			mov r15d, [rbp + 24]
-			add ecx, rbp
+			movdqu xmm0, [rdi + r9*4]		; xmm0 = p3 | p2 | p1 | p0, r9*4 es j*4, es decir el movimiento horizontal
+			movq xmm1, [rsi + rcx*4]		; rsi xmm1 = basura | basura | p1 | p0
+											; Levantamos matriz[ii][jj] con la precondicion de que j sea par. 
+											; Como j es par, podemos decir que parteEntera(j/2) == parteEntera((j+1)/2)
+											; entonces j/2 + offset_y == (j+1)/2 + offset_y, luego habiendo fijado el indice i
+											; para los pixeles j y j+1 solo necesitamos un jj
+											; por ultimo si tomamos la (parte entera) mitad de cada entero volvemos a formar el conjunto de los enteros 
+											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
+											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
+											; j, j+1, j+2 y j+3
 
-			;movdqu xmm0, [rdi + rbp + rci]
-
-	
+			add ecx, 2						; me muevo cada 2 pixeles en jj
+			add r9d, 4						; me muevo 4 pixeles
+			cmp r9d, r13d					; j == width?
+			jz  .cambiarFila				; si llego al final de la fila, la cambio
+		
+		.cambiarFila:
+			inc r8d
+			cmp r8d, r14d					; i == height?
+			jz .fin
+			add r15d, r13d					; r15d = n+n <- sumo otra fila para cambiar de fila
+			test r8d, 1						; i and 1, afecta el flag zero, si el ultimo bit de r8d es 0 entonces es un numero par
+			jnz .ciclo
+			add edx, r13d					; por cada 2 filas tengo que aumentar ii por lo explicado arriba
+			jmp .ciclo
 
 	movdqu xmm0, [rdi + offset]				; xmm0 = p3 | p2 | p1 | p0
 	movdqu xmm1, xmm0						; xmm1 = p3 | p2 | p1 | p0	
