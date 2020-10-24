@@ -39,7 +39,7 @@ ReforzarBrillo_asm:
     movups xmm2, [rdi]  ; xmm1 = [ a_3 | r_3 | g_3 | b_3 | ... ]
     movaps xmm3, xmm1
     
-    xor xmm4, xmm4
+    pxor xmm4, xmm4
 
     pshufb xmm2, xmm14  ; xmm3 = [ pixel 1 | pixel 0 ] y con el formato [ G | R | G | B ] para facilitar la suma
     pshufb xmm3, xmm15  ; xmm4 = [ pixel 3 | pixel 2 ] con el mismo formato
