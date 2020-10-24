@@ -5,7 +5,6 @@ align 16
 ; blue0 = 00 ceros = 80 green0 = 01 ceros = 80 red0 = 02 ceros = 80 green0 = 01 ceros = 80 blue1 = 04 ceros = 80 green1 = 05 ceros = 80 red1 = 06 ceros = 80 green1 = 05 ceros = 80
 ; extiende_y_copia_green_bajo: DQ 0x8001800280018000, 0x8005800680058004
 extiende_y_copia_green_pixeles_bajos: DB 0x00, 0x80, 0x01, 0x80, 0x02, 0x80, 0x01, 0x80, 0x04, 0x80, 0x05, 0x80, 0x06, 0x80, 0x05, 0x80
-;extiende_y_copia_green_pixeles_altos: DB 0x04, 0x80, 0x80, 0x80, 0x05, 0x80, 0x80, 0x80, 0x06, 0x80, 0x80, 0x80, 0x05, 0x80, 0x80, 0x80
 limpia_DD_mas_significativa: DD 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000
 divisor_8: times 4 DD 8
 const_f: DD 0.9, 0.9, 0.9, 1  
@@ -33,8 +32,6 @@ ImagenFantasma_asm:
 	push r12
 	push r13
 	push r14
-	push r15
-	sub rsp, 8
 	
 	mov rbx, rdi						; rbx  = src
 	mov r12, rsi						; r12  = dst
@@ -44,23 +41,26 @@ ImagenFantasma_asm:
 	mov ecx, [rbp + 24]
 	xor r8, r8							; r8d  = indice i
 	xor r9, r9							; r9d  = indece j
-	; rdx, rcx, r15 libres
 	movdqa xmm15, [extiende_y_copia_green_pixeles_bajos]	; mascara para copiar componente green en transparencia y extender las componentes de bytes a DW de los primeros 2 pixeles
-	;movdqa xmm14, [extiende_y_copia_green_pixeles_altos]	; mismo que arriba para los siguientes 2 pixeles
-	;movdqa xmm14, [limpia_DD_mas_significativa]				; xmm14 = 0,9 | 0,9 | 0,9 | 0,9
 	movaps xmm14, [divisor_8]
 	movaps xmm13, [const_f]
 	movdqa xmm12, [transparencias]
 
 	mov rsi, rdi
-	xor xmm10, xmm10
-	.ciclo:
-		mov rdi, rbx
-		mov rsi, rbx
-		lea rdi, [rdi + r15d*4]				; rdi = dir + n*4      <- al tamanio de la fila le multiplico el tamanio de un dato
-		lea rsi, [rsi + rdx*4]				; rsi = ii, en este caso rdx empieza con el offset x y se le va sumando width 
-		
-		.cicloHorizontal
+	pxor xmm10, xmm10
+											; explicacion de las siguientes 2 lineas:
+											;	como a nivel memoria la matriz img no es mas que un arreglo => 
+											;	matriz[ii][jj] = dir inicial + ii*4 + jj*4 <=> dir inicial + (i/2 + offset_X)*4 + (j/2 + offset+y)*4
+											;	<=> dir inicial + (i/2)*4 + (j/2)*4 + offset_x*4 + offset_y*4
+											; entonces puedo sumar el offset_x*4 y offset_y*4 y luego moverme por i/2 * 4 e j/2 * 4 
+
+	lea rsi, [rsi + rdx*4]					; rsi = dir + offset x
+	lea rsi, [rsi + rcx*4]					; rsi = dir + offset y 
+	xor rdx, rdx
+	xor rcx, rcx
+											; (nota personal) registros libres para usar: rdx, r15 
+	.ciclo:		
+		.cicloHorizontal:
 			movdqu xmm0, [rdi + r9*4]		; xmm0 = p3 | p2 | p1 | p0, r9*4 es j*4, es decir el movimiento horizontal
 			movq xmm1, [rsi + rcx*4]		; xmm1 = basura | basura | p1 | p0
 											; Levantamos matriz[ii][jj] con la precondicion de que j sea par. 
@@ -84,7 +84,7 @@ ImagenFantasma_asm:
 				divps xmm1, xmm14				; xmm1 = basura | b0 / 8 | b0 / 8 | b0 / 8 
 				divps xmm2, xmm14				; xmm2 = basura | b1 / 8 | b1 / 8 | b1 / 8
 
-			.preparoLasComponentes:
+			.modificoLasComponentes:
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -131,28 +131,25 @@ ImagenFantasma_asm:
 			cmp r9d, r13d					; j == width?
 			jz  .cambiarFila				; si llego al final de la fila, la cambio
 		
+
 		.cambiarFila:
 			inc r8d
 			cmp r8d, r14d					; i == height?
 			jz .fin
-			add r15d, r13d					; r15d = n+n <- sumo otra fila para cambiar de fila
+			xor rcx, rcx					; reseteo los iteradores de columna
+			xor r9, r9						
+			lea rdi, [rdi + r13*4]			; rdi = dir + n*4      <- al tamanio de la fila le multiplico el tamanio de un dato
+			lea r12, [r12 + r13*4]
 			test r8d, 1						; i and 1, afecta el flag zero, si el ultimo bit de r8d es 0 entonces es un numero par
-			jnz .ciclo
-			add edx, r13d					; por cada 2 filas tengo que aumentar ii por lo explicado arriba
-			jmp .ciclo
+			jnz .cicloHorizontal				
+			.cambiaII:
+				lea rsi, [rsi + r13*4]			; por cada 2 filas tengo que aumentar ii por lo explicado arriba
+				jmp .cicloHorizontal
 
-		
-	
-	pshufb xmm1, xmm15						; xmm1 = ii = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 <- componentes en words del pixel 1, 0 
-	;pshufb xmm2, xmm14						; xmm2 = g3 | r3 | g3 | b3 | g2 | r2 | g2 | b2 <- componentes en words del pixel 3, 2
-
-	phaddw xmm1, xmm1						; xmm1 = 
-
-	add rsp, 8
-	pop r15
-	pop r14
-	pop r13
-	pop r12
-	pop rbx
-	pop rbp
+	.fin:
+		pop r14
+		pop r13
+		pop r12
+		pop rbx
+		pop rbp
 ret
