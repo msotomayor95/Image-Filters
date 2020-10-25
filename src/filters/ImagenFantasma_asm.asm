@@ -95,14 +95,18 @@ ImagenFantasma_asm:
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
+				
 				punpcklbw xmm0, xmm10			
 				punpcklwd xmm0, xmm10			; xmm0 = a0 | r0 | g0 | b0	<- px0 en dwords
+				
 				punpcklbw xmm3, xmm10
-				punpcklwd xmm3, xmm10			; xmm3 = a1 | r1 | g1 | b1	<- px1 en dwords
-				punpcklbw xmm4, xmm10
+				punpckhwd xmm3, xmm10			; xmm3 = a1 | r1 | g1 | b1	<- px1 en dwords
+				
+				punpckhbw xmm4, xmm10
 				punpcklwd xmm4, xmm10			; xmm4 = a2 | r2 | g2 | b2	<- px2 en dwords
-				punpcklbw xmm5, xmm10
-				punpcklwd xmm5, xmm10			; xmm5 = a3 | r3 | g3 | b3  <- px3 en dwords
+				
+				punpckhbw xmm5, xmm10
+				punpckhwd xmm5, xmm10			; xmm5 = a3 | r3 | g3 | b3  <- px3 en dwords
 				
 				cvtdq2ps xmm0, xmm0				; xmm0 = a0 | r0 | g0 | b0	<- px0 en float simple 
 				cvtdq2ps xmm3, xmm3				; xmm3 = a1 | r1 | g1 | b1	<- px1 en float simple 
