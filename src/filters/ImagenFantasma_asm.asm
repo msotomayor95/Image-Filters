@@ -58,11 +58,11 @@ ImagenFantasma_asm:
 	mul r13d								; edx::eax = n*offset_x
 	shl rdx, 32
 	or rdx, rax								; rdx = n*offset_x		<- movimiento en filas
+	mov rsi, rdi							; rsi = dst
 	lea rsi, [rsi + rdx*4]					; rsi = dir + offset_x*n*4
 	lea rsi, [rsi + rcx*4]					; rsi = dir + offset y 
 	xor rdx, rdx
 	xor rcx, rcx
-	mov rsi, rdi
 											; (nota personal) registros libres para usar: rdx, r15 
 	.ciclo:		
 		.cicloHorizontal:
