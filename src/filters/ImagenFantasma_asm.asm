@@ -141,7 +141,7 @@ ImagenFantasma_asm:
 			add r9d, 4						; me muevo 4 pixeles
 			cmp r9d, r13d					; j == width?
 			jz  .cambiarFila				; si llego al final de la fila, la cambio
-		
+			jmp .cicloHorizontal
 
 		.cambiarFila:
 			inc r8d
