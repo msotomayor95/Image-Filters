@@ -5,11 +5,11 @@ align 16
 ; blue0 = 00 ceros = 80 green0 = 01 ceros = 80 red0 = 02 ceros = 80 green0 = 01 ceros = 80 blue1 = 04 ceros = 80 green1 = 05 ceros = 80 red1 = 06 ceros = 80 green1 = 05 ceros = 80
 ; extiende_y_copia_green_bajo: DQ 0x8001800280018000, 0x8005800680058004
 extiende_y_copia_green_pixeles_bajos: DB 0x00, 0x80, 0x01, 0x80, 0x02, 0x80, 0x01, 0x80, 0x04, 0x80, 0x05, 0x80, 0x06, 0x80, 0x05, 0x80
-align 16
-divisor_8: times 4 DD 8
-align 16
+
+divisor_8: times 4 DD 8.0
+
 const_f: DD 0.9, 0.9, 0.9, 1  
-align 16
+
 transparencias: times 4 DD 0xFF000000
 
 section .text
