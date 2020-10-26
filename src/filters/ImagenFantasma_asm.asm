@@ -123,10 +123,11 @@ ImagenFantasma_asm:
 				addps xmm4, xmm2
 				addps xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
 
-				cvtps2dq xmm0, xmm0				
-				cvtps2dq xmm3, xmm3
-				cvtps2dq xmm4, xmm4
-				cvtps2dq xmm5, xmm5				; transformo de float a dw signado (no tengo otra instruccion para no signado)
+				cvttps2dq xmm0, xmm0				
+				cvttps2dq xmm3, xmm3
+				cvttps2dq xmm4, xmm4
+				cvttps2dq xmm5, xmm5			; transformo de float a dw signado redondeando a 0. El redondeo es necesario para ser igual al codigo C y la transformacion a int32 signado es por falta 
+												; de una instruccion que haga el paso a integers sin signos
 
 				packusdw xmm0, xmm3				; xmm0 = basura | r1 | g1 | b1 | basura | r0 | g0 | b0  <- pixel 0 y pixel 1 en unsigned words saturadas
 				packusdw xmm4, xmm5				; xmm1 = basura | r3 | g3 | b3 | basura | r2 | g2 | b2  <- pixel 2 y pixel 3 en unsigned words saturadas  
@@ -141,7 +142,7 @@ ImagenFantasma_asm:
 			add r9d, 4						; me muevo 4 pixeles
 			cmp r9d, r13d					; j == width?
 			jz  .cambiarFila				; si llego al final de la fila, la cambio
-			jmp .cicloHorizontal
+			jmp .cicloHorizontal			
 
 		.cambiarFila:
 			inc r8d
