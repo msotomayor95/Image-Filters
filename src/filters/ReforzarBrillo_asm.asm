@@ -28,7 +28,7 @@ ReforzarBrillo_asm:
     movaps xmm14, [extiende_y_copia_green_bajo]
 
     pxor xmm9, xmm9
-    
+
     movd xmm13, [rbp + 16]      ; Muevo umbralSup a la parte baja xmm13
     pshufd xmm13, xmm13, 0x00   ; [ umbralSup | umbralSup | umbralSup | umbralSup ]
 
@@ -41,7 +41,8 @@ ReforzarBrillo_asm:
     movd xmm10, [rbp + 40]      ; Muevo umbralInf a la parte baja de xmm10
     pshufd xmm10, xmm10, 0x00   ; [ brilloInf | brilloInf | brilloInf | brilloInf ]
     
-
+    packusdw xmm13, xmm9        ; [ 0 | 0 | 0 | 0 | umbralSup | umbralSup | umbralSup | umbralSup ]
+    packusdw xmm12, xmm9        ; [ 0 | 0 | 0 | 0 | umbralInf | umbralInf | umbralInf | umbralInf ]
 
     movdqu xmm1, [rdi]  ; xmm1 = [ a_3 | r_3 | g_3 | b_3 | ... ]
     movdqa xmm2, xmm1
@@ -58,6 +59,5 @@ ReforzarBrillo_asm:
 
     psrlw xmm3, 2       ; xmm3 = [ 0 | 0 | 0 | 0 | 0 | 0 | (R + 2G + B)/4 (pixel1) | (R + 2G + B)/4 (pixel0) ]
 
-    
     
 ret
