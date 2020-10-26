@@ -43,19 +43,18 @@ ReforzarBrillo_asm:
     
     packusdw xmm13, xmm9        ; [ 0 | 0 | 0 | 0 | umbralSup | umbralSup | umbralSup | umbralSup ]
     packusdw xmm12, xmm9        ; [ 0 | 0 | 0 | 0 | umbralInf | umbralInf | umbralInf | umbralInf ]
+    packusdw xmm11, xmm9        ; [ 0 | 0 | 0 | 0 | brilloSup | brilloSup | brilloSup | brilloSup ]
+    packusdw xmm10, xmm10       ; [ 0 | 0 | 0 | 0 | brilloInf | brilloInf | brilloInf | brilloInf ]
 
     movdqu xmm1, [rdi]  ; xmm1 = [ a_3 | r_3 | g_3 | b_3 | ... ]
     movdqa xmm2, xmm1
     movdqa xmm3, xmm1  
     
-
     pshufb xmm2, xmm14  ; xmm3 = [ pixel 1 | pixel 0 ] y con el formato [ G | R | G | B ] para facilitar la suma
     
     phaddw xmm3, xmm9   ; xmm3 = [ 0 | 0 | 0 | 0 | G + R (pixel1) | G + B (pixel1) | G + R (pixel0) | G + B (pixel0) ]
 
-    phaddw xmm3, xmm4   ; xmm3 = [ 0 | 0 | 0 | 0 | R + 2G + B (pixel1) | R + 2G + B (pixel0) | R + 2G + B (pixel1) | R + 2G + B (pixel0) ]
-    
-    psrldq xmm3, 4      ; xmm3 = [ 0 | 0 | 0 | 0 | 0 | 0 | R + 2G + B (pixel1) | R + 2G + B (pixel0) ]
+    phaddw xmm3, xmm9   ; xmm3 = [ 0 | 0 | 0 | 0 | 0 | 0 | R + 2G + B (pixel1) | R + 2G + B (pixel0) ]
 
     psrlw xmm3, 2       ; xmm3 = [ 0 | 0 | 0 | 0 | 0 | 0 | (R + 2G + B)/4 (pixel1) | (R + 2G + B)/4 (pixel0) ]
 
