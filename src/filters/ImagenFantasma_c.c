@@ -35,9 +35,6 @@ void ImagenFantasma_c(
 
             float b = (rrr + 2 * ggg + bbb)/4;
 
-            float tempR = SAT( rr * 0.9 + b/2 );
-            float tempG = SAT( gg * 0.9 + b/2 );
-            float tempB = SAT( bb * 0.9 + b/2 );
             dst_matrix[i][j].r = SAT( rr * 0.9 + b/2 );
             dst_matrix[i][j].g = SAT( gg * 0.9 + b/2 );
             dst_matrix[i][j].b = SAT( bb * 0.9 + b/2 );
