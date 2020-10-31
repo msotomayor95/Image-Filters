@@ -40,17 +40,17 @@ ReforzarBrillo_asm:
     movd xmm11, [rbp + 40]      ; Muevo umbralInf a la parte baja de xmm10
     pshufd xmm11, xmm11, 0x00   ; [ brilloInf | brilloInf | brilloInf | brilloInf ]
     
-    packusdw xmm14, xmm9        
-    psrldq xmm14, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralSup | umbralSup ]
+    ; packusdw xmm14, xmm9        
+    ; psrldq xmm14, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralSup | umbralSup ]
 
-    packusdw xmm13, xmm9        
-    psrldq xmm13, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralInf | umbralInf ]
+    ; packusdw xmm13, xmm9        
+    ; psrldq xmm13, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralInf | umbralInf ]
 
-    packusdw xmm12, xmm9        
-    psrldq xmm12, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
+    ; packusdw xmm12, xmm9        
+    ; psrldq xmm12, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
     
-    packusdw xmm11, xmm9        
-    psrldq xmm11, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
+    ; packusdw xmm11, xmm9        
+    ; psrldq xmm11, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
 
     xor rdx, rdx
     mov eax, r8d 
@@ -66,43 +66,54 @@ ReforzarBrillo_asm:
         movdqu xmm0, [rdi]  ; xmm0 = [ a_3 | r_3 | g_3 | b_3 | ... ]
         movdqa xmm1, xmm0
         
-        pshufb xmm0, xmm14  ; xmm0 = [ pixel 1 | pixel 0 ] y con el formato [ G | R | G | B ] para facilitar la suma
+        pshufb xmm0, xmm15  ; xmm0 = [ pixel 1 | pixel 0 ] y con el formato [ G | R | G | B ] para facilitar la suma
         
+        ; ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         phaddw xmm0, xmm9   ; xmm0 = [ 0 | 0 | 0 | 0 | G + R (pixel1) | G + B (pixel1) | G + R (pixel0) | G + B (pixel0) ]
 
         phaddw xmm0, xmm9   ; xmm0 = [ 0 | 0 | 0 | 0 | 0 | 0 | R + 2G + B (pixel1) | R + 2G + B (pixel0) ]
 
-        psrlw xmm0, 2       ; xmm0 = [ 0 | 0 | 0 | 0 | 0 | 0 | (R + 2G + B)/4 (b de pixel1) | (R + 2G + B)/4 (b de pixel0) ]
-        movdqa xmm3, xmm0   ; copia
+        psrlw xmm0, 2           ; xmm0 = [ 0 | 0 | 0  | 0  | 0  | 0  | (R + 2G + B)/4 (b de pixel1) | (R + 2G + B)/4 (b de pixel0) ]
+        punpcklwd xmm0, xmm9    ; xmm0 = [ 0 | 0 | B1 | B2 ]
+        movdqa xmm3, xmm0       ; copia
 
-        pcmpgtw xmm0, xmm14 ; xmm0 = [ 0 | 0 | 0 | 0 | 0 | 0 | b pixel1 > umbralSup | b pixel 0 > umbralSup ]
-        
-        movdqa xmm4, xmm0
-        pandn xmm4, xmm1    ; me quedo con los b que no cumpleron la condicion
+        pmaxuw xmm0, xmm13  ; xmm0 = [ 0 | 0 | max(b1, umbralInf) | max(b0, umbralInf) ]        
+        pcmpeqw xmm0, xmm13 ; me quedan todos 1s donde b < umbralInf
 
-        movdqa xmm5, xmm13  ; copia umbralInf
-        pcmpgtw xmm5, xmm4  ; xmm5 = [ 0 | 0 | 0 | 0 | 0 | 0 | umbralInf > b pixel1 | umbralInf > b pixel0 ]
+        pminuw xmm3, xmm14  ; xmm3 = [ 0 | 0 | min(b1, umbralSup) | min(b0, umbralSup) ]
+        pcmpeqw xmm3, xmm14 ; me quedan todos 1s donde b > umbralInf   
 
-        pand xmm4, xmm12    ; xmm4 = [ 0 | 0 | 0 | 0 | 0 | 0 | brillSup (si b de p1 > uS) | brilloSup si b de p0 > uS ]
-        pand xmm5, xmm11    ; xmm5 = [ 0 | 0 | 0 | 0 | 0 | 0 | brillInf (si b de p1 < uI) | brilloInf si b de p0 < uI ]
+        pand xmm3, xmm11    
+        pslldq xmm3, 8
+        psrldq xmm3, 8      ; xmm3 = [ 0 | 0 | brillSup (si b1 > uS) | brilloSup (si b0 > uS) ]
+
+        pand xmm0, xmm12    
+        pslldq xmm0, 8
+        psrldq xmm0, 8      ; xmm0 = [ 0 | 0 | brillInf (si b1 < uI) | brilloInf (si b0 < uI) ]
+
+        packusdw xmm3, xmm9
+        packusdw xmm0, xmm9
+ 
+        ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         punpcklbw xmm1, xmm9        ; xmm1 = [ A1 | R1 | G1 | B1 | A0 | R0 | G0 | B0 ]
 
         ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        pshuflw xmm6, xmm4, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bS | bS | bS ]
-        pslldq xmm4, 4
-        pshufhw xmm6, xmm4, 0xD5    ; xmm6 = [ 00 | bS | bS | bS | 00 | bS | bS | bS ]
+        pshuflw xmm6, xmm3, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bS | bS | bS ]
+        pslldq xmm3, 4
+        pshufhw xmm6, xmm3, 0xD5    ; xmm6 = [ 00 | bS | bS | bS | 00 | bS | bS | bS ]
 
         paddusw xmm1, xmm6
         
         ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        pshuflw xmm6, xmm5, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bI | bI | bI ]
-        pslldq xmm5, 4
-        pshufhw xmm6, xmm5, 0xD5     ; xmm6 = [ 00 | bI | bI | bI | 00 | bI | bI | bI ]
+        pshuflw xmm6, xmm0, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bI | bI | bI ]
+        pslldq xmm0, 4
+        pshufhw xmm6, xmm0, 0xD5    ; xmm6 = [ 00 | bI | bI | bI | 00 | bI | bI | bI ]
 
-        psubusw xmm1, xmm5
+        psubusw xmm1, xmm0
 
         packuswb xmm1, xmm9
 
