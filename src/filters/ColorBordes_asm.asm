@@ -143,8 +143,9 @@ ColorBordes_asm:
 		psrldq xmm3, 10						; xmm3 = 0 |   0   |   0   |   0   | 0 | px0_r | px0_g | px0_b
 		psrldq xmm4, 2						; xmm4 = 0 | px1_r | px1_g | px1_b | 0 |   0   |   0   |   0
 		por xmm3, xmm4						; xmm3 = 0 | px1_r | px1_g | px1_b | 0 | px0_r | px0_g | px0_b
-		packuswb xmm3, xmm12
+		packuswb xmm3, xmm11
 		por xmm3, xmm13						; seteo transparencias
+
 
 		movq [rsi], xmm3
 		add rdi, 8							; rdi = dir anterior + 2*4 (2 pixeles por su tamanio)
