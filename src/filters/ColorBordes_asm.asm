@@ -191,6 +191,8 @@ ColorBordes_asm:
 			
 			add rdi, 16
 			add rsi, 16
+			add rdx, 16
+			add rcx, 16
 			add r9d, 4
 			cmp r9d, r13d	
 			jne .blanqueaFilas			; si llego a la ultima columna no salto
