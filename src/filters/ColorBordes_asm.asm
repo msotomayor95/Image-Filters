@@ -5,6 +5,7 @@ align 16
 reordena_datos_ii_px1: DB 0x00, 0x80, 0x08, 0x80, 0x01, 0x80, 0x09, 0x80, 0x03, 0x80, 0x0A, 0x80, 0x80, 0x80, 0x80, 0x80  
 reordena_datos_ii_px2: DB 0x04, 0x80, 0x0C, 0x80, 0x05, 0x80, 0x0D, 0x80, 0x06, 0x80, 0x0E, 0x80, 0x80, 0x80, 0x80, 0x80
 transparencias: times 4 DD 0xFF000000
+
 section .text
 
 extern ColorBordes_c
@@ -23,29 +24,41 @@ ColorBordes_asm:
 	push r12
 	push r13
 	push r14
-	push r15
-	sub rsp, 8
 
 	mov rbx, rdi	; rbx  = src*
 	mov r12, rsi	; r12  = dst*
 	mov r13d, edx	; r13d = width
 	mov r14d, ecx	; r14d = height
-	mov r15d, r8d	; r15d = src_row_size
+
+	mov ecx, ecx	; limpio la parte alta de ecx
+	mov r8d, r8d	; limpio la parte alta de r8
 
 	movdqa xmm15, [reordena_datos_ii_px1]
 	movdqa xmm14, [reordena_datos_ii_px2]
 	movdqa xmm13, [transparencias]
+	pxor xmm11, xmm11					; lo uso como registro vacio para desempaquetar
 
+    mov eax, edx						; eax = width
+    xor rdx, rdx 						; 
+    mul ecx								; edx::eax = (width) * (height)
+    shl rdx, 32
+    or rax, rdx
+    shl rax, 2							; rax = width * height * 4 (tamanio de un pixel)
+    add rax, rdi						; 
+    sub rax, r8
+    sub rax, 8							; rax = width * height * 4 - 1 fila - 1 pixel = m[h-2][w-2]   ?????
+
+
+    xor r9, r9							; r9 = contador de columnas
+
+	mov edx, r13d						;
+	sub edx, 2							; edx = width - 2   (este sera uno de mis limites)
 	lea rsi, [rsi + r8 + 4]				; rsi = m[1][1]
-	
-
-
 	.ciclo:
-		movdqu xmm0, [rdi]				; xmm0 =  p[i-1][j+2] | p[i-1][j+1] | p[i-1][j] | p[i-1][j-1]  
-		lea rdi, [rdi + r8*2]			; rdi = matriz[i+1][j-1]
-		movdqu xmm2, [rdi]				; xmm2 = p[i+1][j+2] | p[i+1][j+1] | p[i+1][j] | p[i+1][j-1]
-		sub rdi, r8						; rdi = matriz[i][j-1]
-		movdqu xmm1, [rdi]				; xmm1 = p[i][j+2] | p[i][j+1] | p[i][j] | p[i][j-1]
+		
+		movdqu xmm2, [rdi + r8*2]		; xmm2 = p[i+1][j+2] | p[i+1][j+1] | p[i+1][j] | p[i+1][j-1]  
+		movdqu xmm1, [rdi + r8]			; xmm1 = p[i][j+2]   | p[i][j+1]   | p[i][j]   | p[i][j-1]
+		movdqu xmm0, [rdi]				; xmm0 = p[i-1][j+2] | p[i-1][j+1] | p[i-1][j] | p[i-1][j-1]
 
 		movdqa xmm3, xmm0				; copio las filas que uso para el ciclo ii del px0
 		movdqa xmm4, xmm1
@@ -96,10 +109,10 @@ ColorBordes_asm:
 		movdqa xmm7, xmm2
 		movdqa xmm8, xmm2					; realizo lo mismo solo que estas dos ultimas seran para sumar jj = j + 1
 
-		punpcklbw xmm5, xmm12				; xmm5 = m[i-1][j].a | m[i-1][j].r | m[i-1][j].g | m[i-1][j].b | m[i-1][j-1].a | m[i-1][j-1].r | m[i-1][j-1].g | m[i-1][j-1].b
-		punpckhbw xmm6, xmm12				; xmm6 = m[i-1][j+2].a | m[i-1][j+2].r | m[i-1][j+2].g | m[i-1][j+2].b | m[i-1][j+1].a | m[i-1][j+1].r | m[i-1][j+1].g | m[i-1][j+1].b
-		punpcklbw xmm7, xmm12				; xmm7 = m[i+1][j].a | m[i+1][j].r | m[i+1][j].g | m[i+1][j].b | m[i+1][j-1].a | m[i+1][j-1].r | m[i+1][j-1].g | m[i+1][j-1].b
-		punpckhbw xmm8, xmm12				; xmm8 = m[i+1][j+2].a | m[i+1][j+2].r | m[i+1][j+2].g | m[i+1][j+2].b | m[i+1][j+1].a | m[i+1][j+1].r | m[i+1][j+1].g | m[i+1][j+1].b
+		punpcklbw xmm5, xmm11				; xmm5 = m[i-1][j].a | m[i-1][j].r | m[i-1][j].g | m[i-1][j].b | m[i-1][j-1].a | m[i-1][j-1].r | m[i-1][j-1].g | m[i-1][j-1].b
+		punpckhbw xmm6, xmm11				; xmm6 = m[i-1][j+2].a | m[i-1][j+2].r | m[i-1][j+2].g | m[i-1][j+2].b | m[i-1][j+1].a | m[i-1][j+1].r | m[i-1][j+1].g | m[i-1][j+1].b
+		punpcklbw xmm7, xmm11				; xmm7 = m[i+1][j].a | m[i+1][j].r | m[i+1][j].g | m[i+1][j].b | m[i+1][j-1].a | m[i+1][j-1].r | m[i+1][j-1].g | m[i+1][j-1].b
+		punpckhbw xmm8, xmm11				; xmm8 = m[i+1][j+2].a | m[i+1][j+2].r | m[i+1][j+2].g | m[i+1][j+2].b | m[i+1][j+1].a | m[i+1][j+1].r | m[i+1][j+1].g | m[i+1][j+1].b
 
 		.cicloJj:
 			.restaJj:
@@ -133,11 +146,82 @@ ColorBordes_asm:
 		por xmm3, xmm13						; seteo transparencias
 
 		movq [rsi], xmm3
-		add 
-		
+		add rdi, 8							; rdi = dir anterior + 2*4 (2 pixeles por su tamanio)
+		add rsi, 8							; rsi = dir anterior + 2*4 (2 pixeles por su tamanio)
+		add r9d, 2							;  
+		cmp r9d, edx						; cont.columna == width - 2 ?
+		je .cambiaFila
 
-	add rsp, 8
-	pop r15
+		.cambiaFila:
+			xor r9, r9
+			cmp rdi, rax					; *dst == final?
+			je .marcoBlanco
+			add rdi, 8
+			add rsi, 8
+			jmp .ciclo		
+
+	.marcoBlanco:
+		xor rdx, rdx
+		xor rcx, rcx
+		
+		mov rdi, rbx					; rdi = src[0][0]
+		sub rax, rdi					; rax = offset_m[h-2][w-2]
+		mov rdx, rbx 					; rdx = src[0][0]
+		
+		mov rsi, r12					; rsi = dst[0][0]
+		mov rcx, r12					; rcx = dst[0][0]
+
+		add rdx, rax					; rdx = src[h-2][w-2]
+		add rcx, rax					; rcx = dst[h-2][w-2]
+		add rdx, 8						; rdx = src[h-1][0]
+		add rcx, 8						; rcx = dst[h-1][0]
+
+		.blanqueaFilas:
+			movdqu xmm0, [rdi]
+			movdqu xmm1, [rdx]
+			
+			pcmpeqq xmm0, xmm0			; pongo todas las componentes en 255
+			pcmpeqq xmm1, xmm1
+			
+			movdqu [rsi], xmm0			
+			movdqu [rcx], xmm1
+			
+			add rdi, 16
+			add rsi, 16
+			add r9d, 4
+			cmp r9d, r13d	
+			jne .blanqueaFilas			; si llego a la ultima columna no salto
+		
+		sub rdi, 4
+		sub rsi, 4						; me paro en la ultima columna
+		add rdi, r8
+		add rsi, r8						; estando en la ultima columna, cambio de fila
+		mov rdx, rdi					; rdx = src[0][w-1]
+		mov rcx, rsi					; rcx = dst[0][w-1]
+		mov rdi, rbx					; rdi = src[0][0]
+		mov rsi, r12					; rsi = dst[0][0]
+		add rdi, r8
+		add rsi, r8
+		mov r9d, 1
+
+		.blanqueaColumnas:
+			movd xmm0, [rdi]			;
+			movd xmm1, [rdx]
+			
+			pcmpeqq xmm0, xmm0
+			pcmpeqq xmm1, xmm1			; 
+			
+			movd [rsi], xmm0
+			movd [rcx], xmm1
+
+			add rdi, r8					
+			add rsi, r8					; avanzo a la siguiente fila
+			add rdx, r8
+			add rcx, r8
+			inc r9d						
+			cmp r9d, r14d				; 
+			jne .blanqueaColumnas
+
 	pop r14
 	pop r13
 	pop r12
