@@ -46,7 +46,8 @@ ColorBordes_asm:
     shl rax, 2							; rax = width * height * 4 (tamanio de un pixel)
     add rax, rdi						; 
     sub rax, r8
-    sub rax, 8							; rax = width * height * 4 - 1 fila - 1 pixel = m[h-2][w-2]   ?????
+    sub rax, r8	
+    sub rax, 8							; rax = width * height * 4 - 2 fila - 2 pixeles = m[h-3][w-2]   ?????
 
 
     xor r9, r9							; r9 = contador de columnas
@@ -165,15 +166,17 @@ ColorBordes_asm:
 		xor rcx, rcx
 		
 		mov rdi, rbx					; rdi = src[0][0]
-		sub rax, rdi					; rax = offset_m[h-2][w-2]
+		sub rax, rdi					; rax = offset_m[h-3][w-2]
 		mov rdx, rbx 					; rdx = src[0][0]
 		
 		mov rsi, r12					; rsi = dst[0][0]
 		mov rcx, r12					; rcx = dst[0][0]
 
-		add rdx, rax					; rdx = src[h-2][w-2]
-		add rcx, rax					; rcx = dst[h-2][w-2]
+		add rdx, rax					; rdx = src[h-3][w-2]
+		add rdx, r8						; rdx = src[h-2][w-2]
 		add rdx, 8						; rdx = src[h-1][0]
+		add rcx, rax					; rcx = dst[h-3][w-2]
+		add rcx, r8						; rcx = dst[h-2][w-2]
 		add rcx, 8						; rcx = dst[h-1][0]
 
 		.blanqueaFilas:
@@ -196,12 +199,12 @@ ColorBordes_asm:
 		sub rsi, 4						; me paro en la ultima columna
 		add rdi, r8
 		add rsi, r8						; estando en la ultima columna, cambio de fila
-		mov rdx, rdi					; rdx = src[0][w-1]
-		mov rcx, rsi					; rcx = dst[0][w-1]
+		mov rdx, rdi					; rdx = src[1][w-1]
+		mov rcx, rsi					; rcx = dst[1][w-1]
 		mov rdi, rbx					; rdi = src[0][0]
 		mov rsi, r12					; rsi = dst[0][0]
-		add rdi, r8
-		add rsi, r8
+		add rdi, r8						; rdi = src[1][0]
+		add rsi, r8						; rsi = dst[1][0]
 		mov r9d, 1
 
 		.blanqueaColumnas:
