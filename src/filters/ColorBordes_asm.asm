@@ -153,6 +153,7 @@ ColorBordes_asm:
 		add r9d, 2							;  
 		cmp r9d, edx						; cont.columna == width - 2 ?
 		je .cambiaFila
+		jmp .ciclo
 
 		.cambiaFila:
 			xor r9, r9
