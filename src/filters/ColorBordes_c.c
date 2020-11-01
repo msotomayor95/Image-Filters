@@ -23,9 +23,6 @@ void ColorBordes_c(
             int r=0;
             int g=0;
             int b=0;
-            int r2=0;
-            int g2=0;
-            int b2=0;
 
 	        for (int ii = i-1; ii <= i+1; ii++) {
                 r += abs( src_matrix[ii][j-1].r - src_matrix[ii][j+1].r );
@@ -35,11 +32,8 @@ void ColorBordes_c(
 
 	        for (int jj = j-1; jj <= j+1; jj++) {
                 r += abs( src_matrix[i-1][jj].r - src_matrix[i+1][jj].r );
-                r2 += abs( src_matrix[i-1][jj].r - src_matrix[i+1][jj].r );
                 g += abs( src_matrix[i-1][jj].g - src_matrix[i+1][jj].g );
-                g2 += abs( src_matrix[i-1][jj].g - src_matrix[i+1][jj].g );
                 b += abs( src_matrix[i-1][jj].b - src_matrix[i+1][jj].b );
-                b2 += abs( src_matrix[i-1][jj].b - src_matrix[i+1][jj].b );
             }
 
 	        dst_matrix[i][j].r = SAT(r);
