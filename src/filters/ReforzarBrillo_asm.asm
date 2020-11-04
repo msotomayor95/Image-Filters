@@ -58,6 +58,8 @@ ReforzarBrillo_asm:
     shl rdx, 32
     or rax, rdx
     add rax, rsi
+
+    xor r11, r11    ; contador auxiliar
     
     .ciclo_brillos:
         cmp rax, rsi
@@ -75,45 +77,55 @@ ReforzarBrillo_asm:
         phaddw xmm0, xmm9   ; xmm0 = [ 0 | 0 | 0 | 0 | 0 | 0 | R + 2G + B (pixel1) | R + 2G + B (pixel0) ]
 
         psrlw xmm0, 2           ; xmm0 = [ 0 | 0 | 0  | 0  | 0  | 0  | (R + 2G + B)/4 (b de pixel1) | (R + 2G + B)/4 (b de pixel0) ]
-        punpcklwd xmm0, xmm9    ; xmm0 = [ 0 | 0 | B1 | B2 ]
+        pmovzxwd xmm0, xmm0     ; xmm0 = [ 0 | 0 | B1 | B2 ]
         movdqa xmm3, xmm0       ; copia
 
-        pmaxuw xmm0, xmm13  ; xmm0 = [ 0 | 0 | max(b1, umbralInf) | max(b0, umbralInf) ]        
-        pcmpeqw xmm0, xmm13 ; me quedan todos 1s donde b < umbralInf
+        pcmpgtd xmm3, xmm14 ; xmm3 = [ 0 | 0 | b1 > umbralSup) | b0 > umbralSup) ]
+        
+        movdqa xmm4, xmm13  ; copia
+        pcmpgtd xmm4, xmm0  
+        movdqa xmm0, xmm4   ; xmm0 = [ 0 | 0 | b1 < umbralInf | b0 < umbralInf ]        
 
-        pminuw xmm3, xmm14  ; xmm3 = [ 0 | 0 | min(b1, umbralSup) | min(b0, umbralSup) ]
-        pcmpeqw xmm3, xmm14 ; me quedan todos 1s donde b > umbralInf   
-
-        pand xmm3, xmm11    
+        pand xmm3, xmm12    
         pslldq xmm3, 8
         psrldq xmm3, 8      ; xmm3 = [ 0 | 0 | brillSup (si b1 > uS) | brilloSup (si b0 > uS) ]
 
-        pand xmm0, xmm12    
+        pand xmm0, xmm11    
         pslldq xmm0, 8
         psrldq xmm0, 8      ; xmm0 = [ 0 | 0 | brillInf (si b1 < uI) | brilloInf (si b0 < uI) ]
 
-        packusdw xmm3, xmm9
-        packusdw xmm0, xmm9
+        ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        packusdw xmm3, xmm9 ; xmm3 = [ 0 | 0 | 0 | 0 | 0 | 0 | bS (si b1 > uS) | bS (si b0 > uS) ]
+        packusdw xmm0, xmm9 ; xmm0 = [ 0 | 0 | 0 | 0 | 0 | 0 | bI (si b1 > uI) | bI (si b0 > uI) ]
  
         ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        punpcklbw xmm1, xmm9        ; xmm1 = [ A1 | R1 | G1 | B1 | A0 | R0 | G0 | B0 ]
+        pmovzxbw xmm1, xmm1 ; xmm1 = [ A1 | R1 | G1 | B1 | A0 | R0 | G0 | B0 ]
 
         ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        pshuflw xmm6, xmm3, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bS | bS | bS ]
-        pslldq xmm3, 4
-        pshufhw xmm6, xmm3, 0xD5    ; xmm6 = [ 00 | bS | bS | bS | 00 | bS | bS | bS ]
+        pshuflw xmm6, xmm3, 0xC0    ; xmm6 = [ kk |   kk   |   kk   |   kk   | 00 | bS(p0) | bS(p0) | bS(p0) ]
+
+        pslldq xmm3, 8              ; xmm3 = [ 00 |   00   | bS(p1) ] bS(p0) | 00 |   00   |   00   |   00   ]
+        
+        pshufhw xmm7, xmm3, 0xD5    ; xmm7 = [ 00 | bS(p1) | bS(p1) | bS(p1) | 00 |   kk   |   kk   |   kk   ]
+
+        por xmm6, xmm7
 
         paddusw xmm1, xmm6
         
         ; /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        pshuflw xmm6, xmm0, 0xC0    ; xmm6 = [ kk | kk | kk | kk | 00 | bI | bI | bI ]
-        pslldq xmm0, 4
-        pshufhw xmm6, xmm0, 0xD5    ; xmm6 = [ 00 | bI | bI | bI | 00 | bI | bI | bI ]
+        pshuflw xmm6, xmm0, 0xC0    ; xmm6 = [ 00 |   00   |   00   |   00   | 00 | bI(p0) | bI(p0) | bI(p0) ]
+        
+        pslldq xmm0, 8              ; xmm0 = [ 00 |   00   | bI(p1) ] bI(p0) | 00 |   00   |   00   |   00   ]
+        
+        pshufhw xmm7, xmm0, 0xD5    ; xmm7 = [ 00 | bI(p1) | bI(p1) | bI(p1) | 00 |   00   |   00   |   00   ]
 
-        psubusw xmm1, xmm0
+        por xmm6, xmm7
+
+        psubusw xmm1, xmm6
 
         packuswb xmm1, xmm9
 
@@ -121,6 +133,7 @@ ReforzarBrillo_asm:
 
         lea rsi, [rsi + 8]
         lea rdi, [rdi + 8]
+        inc r11
         jmp .ciclo_brillos
 
     .fin:
