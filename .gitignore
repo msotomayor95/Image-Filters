@@ -1,6 +1,7 @@
 # LaTeX temporary files
 *.aux
 *.log
+*.pdf
 *.toc
 
 # SyncTeX
