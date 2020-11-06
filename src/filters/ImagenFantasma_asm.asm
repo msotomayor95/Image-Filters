@@ -123,6 +123,11 @@ ImagenFantasma_asm:
 				; mulps xmm4, xmm13
 				; mulps xmm5, xmm13
 
+				pmuludq xmm0, xmm13 
+				pmuludq xmm3, xmm13
+				pmuludq xmm4, xmm13
+				pmuludq xmm5, xmm13
+
 				; addps xmm0, xmm1				;
 				; addps xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
 				; addps xmm4, xmm2
