@@ -66,8 +66,11 @@ ImagenFantasma_asm:
 	xor rdx, rdx
 	xor rcx, rcx
 											; (nota personal) registros libres para usar: rdx, r15 
+
+
 	.ciclo:		
 		.cicloHorizontal:
+			inc rdx
 			movdqu xmm0, [rdi + r9*4]		; xmm0 = p3 | p2 | p1 | p0, r9*4 es j*4, es decir el movimiento horizontal
 			movq xmm1, [rsi + rcx*4]		; xmm1 = basura | basura | p1 | p0
 											; Levantamos matriz[ii][jj] con la precondicion de que j sea par. 
@@ -86,10 +89,12 @@ ImagenFantasma_asm:
 				movdqu xmm2, xmm1				
 				pshufd xmm1, xmm1, 0x00			; xmm1 = g0+r0+g0+b0 | g0+r0+g0+b0 | g0+r0+g0+b0 | g0+r0+g0+b0
 				pshufd xmm2, xmm2, 0x55			; xmm2 = g1+r1+g1+b1 | g1+r1+g1+b1 | g1+r1+g1+b1 | g1+r1+g1+b1
-				cvtdq2ps xmm1, xmm1				; convierto ambos vectores de int a floats
-				cvtdq2ps xmm2, xmm2
-				divps xmm1, xmm14				; xmm1 = basura | b0 / 8 | b0 / 8 | b0 / 8 
-				divps xmm2, xmm14				; xmm2 = basura | b1 / 8 | b1 / 8 | b1 / 8
+				;cvtdq2ps xmm1, xmm1				; convierto ambos vectores de int a floats
+				;cvtdq2ps xmm2, xmm2
+				;divps xmm1, xmm14				; xmm1 = basura | b0 / 8 | b0 / 8 | b0 / 8 
+				;divps xmm2, xmm14				; xmm2 = basura | b1 / 8 | b1 / 8 | b1 / 8
+				psrld xmm1, 3
+				psrld xmm2, 3
 
 			.modificoLasComponentes:
 				movdqu xmm3, xmm0
@@ -108,25 +113,31 @@ ImagenFantasma_asm:
 				punpckhbw xmm5, xmm10
 				punpckhwd xmm5, xmm10			; xmm5 = a3 | r3 | g3 | b3  <- px3 en dwords
 				
-				cvtdq2ps xmm0, xmm0				; xmm0 = a0 | r0 | g0 | b0	<- px0 en float simple 
-				cvtdq2ps xmm3, xmm3				; xmm3 = a1 | r1 | g1 | b1	<- px1 en float simple 
-				cvtdq2ps xmm4, xmm4				; xmm4 = a2 | r2 | g2 | b2	<- px2 en float simple 
-				cvtdq2ps xmm5, xmm5				; xmm5 = a3 | r3 | g3 | b3  <- px3 en float simple 
+				; cvtdq2ps xmm0, xmm0				; xmm0 = a0 | r0 | g0 | b0	<- px0 en float simple 
+				; cvtdq2ps xmm3, xmm3				; xmm3 = a1 | r1 | g1 | b1	<- px1 en float simple 
+				; cvtdq2ps xmm4, xmm4				; xmm4 = a2 | r2 | g2 | b2	<- px2 en float simple 
+				; cvtdq2ps xmm5, xmm5				; xmm5 = a3 | r3 | g3 | b3  <- px3 en float simple 
 
-				mulps xmm0, xmm13				; multiplico a todas las componentes por 0,9
-				mulps xmm3, xmm13
-				mulps xmm4, xmm13
-				mulps xmm5, xmm13
+				; mulps xmm0, xmm13				; multiplico a todas las componentes por 0,9
+				; mulps xmm3, xmm13
+				; mulps xmm4, xmm13
+				; mulps xmm5, xmm13
 
-				addps xmm0, xmm1				;
-				addps xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
-				addps xmm4, xmm2
-				addps xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
+				; addps xmm0, xmm1				;
+				; addps xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
+				; addps xmm4, xmm2
+				; addps xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
 
-				cvttps2dq xmm0, xmm0				
-				cvttps2dq xmm3, xmm3
-				cvttps2dq xmm4, xmm4
-				cvttps2dq xmm5, xmm5			; transformo de float a dw signado redondeando a 0. El redondeo es necesario para ser igual al codigo C y la transformacion a int32 signado es por falta 
+
+				paddd xmm0, xmm1				;
+				paddd xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
+				paddd xmm4, xmm2
+				paddd xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
+
+				; cvttps2dq xmm0, xmm0				
+				; cvttps2dq xmm3, xmm3
+				; cvttps2dq xmm4, xmm4
+				; cvttps2dq xmm5, xmm5			; transformo de float a dw signado redondeando a 0. El redondeo es necesario para ser igual al codigo C y la transformacion a int32 signado es por falta 
 												; de una instruccion que haga el paso a integers sin signos
 
 				packusdw xmm0, xmm3				; xmm0 = basura | r1 | g1 | b1 | basura | r0 | g0 | b0  <- pixel 0 y pixel 1 en unsigned words saturadas
