@@ -23,7 +23,7 @@
 \usepackage{paralist} %itemize inline
 
 %\usepackage{float}
-%\usepackage{amsmath, amsthm, amssymb}
+\usepackage{amsmath, amsthm, amssymb}
 %\usepackage{amsfonts}
 %\usepackage{sectsty}
 %\usepackage{charter}
@@ -135,10 +135,33 @@ El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquirido
 
 \subsubsection{Descripci\'on}
 
-\paragraph Bla bla bla bla.
+\paragraph{} Este filtro consiste en generar una imagen fantasma sobre la original, para ello se utiliza la misma imagen original al doble de tamaño y en escala de grises. Ademas se generara a partir de un punto cuyas coordenadas nos dan por parametro.
 Esto se muestra en la figura~\ref{Imagen fantasma}.
 
 \subsubsection{Implementaci\'on}
+
+\paragraph{} En esta implementaci\'on se realizan dos recorridos diferentes por cada iteraci\'on sobre la matriz $src$: 
+\begin{itemize}
+	\item Uno de los recorridos es similar al implementado en C, es decir recorriendo todos los pixeles de cada fila. Con la principal diferencia de que se levantan 4 pixeles en vez de 1.
+	\item En nuestra implementaci\'on no se calcula $ii$ ni $jj$, en cambio existe un segundo recorrido que levanta los pixeles correspondientes a estos indices.
+\end{itemize}
+
+\paragraph{Recorrido de $ii$ y $jj$:} Sabemos que $ii = i/2 + offset_x$ , \, $jj = j/2 + offset_y$ representando $"/"$ la divisi\'on entera. Fijando el $offset_y$ en 0 veamos como cambia $jj$ a partir de una sucesi\'on de valores para $j$:
+
+\begin{align*}
+	j &= [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]\\
+	jj &= [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
+\end{align*}    
+
+\newpage
+
+\paragraph{} El valor de $jj$ para los $j$ impares es el mismo que para el par menor y mas cercano a ese $j$ impar, ya que el operador $"/"$ descarta el resto y devuelve solo el cociente es decir: $j = 2*q \, \wedge \, j+1 = 2*q + r \Rightarrow j/2 = q$ \, y \, $(j+1)/2 = q$. Podemos usar esta informaci\'on para afirmar que si $j = 2 * q \Rightarrow jj(j) == jj(j+1)$ (notar que en el calculo de $jj$, $offset_y$ es siempre la misma constante sumada, no cambia la igualdad).
+
+\paragraph{} Esto lo aprovechamos para no calcular $ii$ ni $jj$ en cada iteraci\'on, ya que $i, j$ empiezan en $0 \Rightarrow ii = offset_x, jj=offset_y$. Luego basta con incrementar en 1 a $ii$ o $jj$ por cada 2 incrementos de $i$ y $j$ respectivamente.
+
+\paragraph{}
+
+
 
 el code snippet lo deje por las dudas, por si lo necesito hago copy paste
 
