@@ -1,0 +1,17 @@
+# LaTeX temporary files
+*.aux
+*.log
+*.pdf
+*.toc
+
+# SyncTeX
+*.synctex.gz
+
+# Vs Code
+src/.vscode/settings.json
+
+# resultados de tests
+*.csv
+
+# cache de python
+__pycache__

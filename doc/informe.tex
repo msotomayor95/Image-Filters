@@ -18,6 +18,7 @@
 \usepackage[spanish]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{charter}   % tipografia
+\usepackage{tipa}
 \usepackage{graphicx}
 %\usepackage{makeidx}
 \usepackage{paralist} %itemize inline
@@ -165,6 +166,7 @@ Esto se muestra en la figura~\ref{Imagen fantasma}.
 
 el code snippet lo deje por las dudas, por si lo necesito hago copy paste
 
+
 \begin{codesnippet}
 \begin{verbatim}
 
@@ -177,6 +179,47 @@ struct Pepe {
 \end{verbatim}
 \end{codesnippet}
 
+\subsection{ReforzarBrillo}
+
+\subsubsection{Descripción}
+
+Este filtro aumenta y disminuye el brillo de una imagen según el brillo que ya tenia. Sí el
+pixel supera un umbral, el brillo se aumenta, si el pixel esta debajo de un umbral, el brillo se
+disminuye. El efecto resultante es un refuerzo del brillo diferenciado.
+
+\subsubsection{Implementaci\'on}
+
+En este filtro consideramos varias cosas a la hora de implementar este filtro.
+
+Para poder detenerminar si un pixel superaba un estaba por debajo de un umbral, necesitabamos hacer la siguiente cuenta:
+
+\begin{center}
+	b = ( pixel.R + 2 * pixel.G + pixel.B ) / 4
+\end{center}
+
+Seguido a esto, ya que cada componente de un pixel mide 1 byte, dando que el tama\~no total de un pixel es de 4 bytes, en un registro xmm podemos levantar 4 pixeles. Sin embargo, si queremos que nuestra cuenta sea exacta, fue necesario extender el tama\~no de cada componente a 2 bytes. Para esto, en vez de utilizar una instruccion de extension de como pmovzxbw, decidimos utilizar la instrucción de pshufb con una mascara que nos dejá de la componente Verde en la posicion en la que deberia estar la transparencia. Quedando el registro xmm de la siguiente forma: 
+
+\begin{center}
+	xmm = [ G1 \textpipe\ R1 \textpipe\ G1 \textpipe\ B1 \textpipe\ G0 \textpipe\ R0 \textpipe\ G0 \textpipe\ B0 ]
+\end{center}
+
+Esto nos facilit\'o la suma, ya que solo tuvimos que usar la suma horizontal quedando el registro xmm:
+
+\begin{center}
+	xmm = [ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ G1 + R1 \textpipe\ G1 + B1 \textpipe\ G0 + R0 \textpipe\ G0 + B0 ]
+\end{center}
+
+y si usamos nuevamente la suma horizontal nuevamente obtendremos:
+
+\begin{center}
+	xmm = [ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ R1 + 2 $\times$ G1 + B1 \textpipe\ R0 + 2 $\times$ G0 + B0 ]
+\end{center}
+
+Finalmente divisimos por 4 usando un shift empaquetado de a word de 2 bits a derecha para que nos quede b, como nosotros queriamos.
+
+Ahora, para poder compararlos con los umbrales que pueden ser numeros de hasta 4 bytes, es necesario extender nuevamente de word a dword (2 a 4 bytes) quedando los b de cada pixel expresados en dwords.
+
+Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los umbrales pasados por parametro. Sabemos que como estamos preguntando por mayor o menor estrictos, no es posible que un b cumpla ambas condiciones al mismo tiempo (?????? estoy super exceptico con respecto a esto).
 
 \section{Resultados}
 %\input{enunciado}
