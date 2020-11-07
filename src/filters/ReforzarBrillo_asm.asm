@@ -58,9 +58,9 @@ ReforzarBrillo_asm:
     shl rdx, 32
     or rax, rdx
     
-    xor r11, r11
 
     .ciclo_brillos:
+        sub rax, 8
         cmp rax, 0
         je .fin
 
@@ -132,8 +132,6 @@ ReforzarBrillo_asm:
 
         add rsi, 8
         add rdi, 8
-        sub rax, 8
-        inc r11
         jmp .ciclo_brillos
 
     .fin:
