@@ -76,7 +76,7 @@ void imprimir_tiempos_ejecucion(unsigned long long int start, unsigned long long
     FILE* f;
 
     // ReforzarBrillo
-    f = fopen("resultados_ReforzarBrillo1.csv", "ab");
+    // f = fopen("resultados_ReforzarBrillo1.csv", "ab");
     // f = fopen("resultados_ReforzarBrillo2.csv", "ab");
     // f = fopen("resultados_ReforzarBrillo3.csv", "ab");
 
@@ -88,9 +88,9 @@ void imprimir_tiempos_ejecucion(unsigned long long int start, unsigned long long
     // ColorBordes
     // f = fopen("resultados_ColorBordes1.csv", "ab");
     // f = fopen("resultados_ColorBordes2.csv", "ab");
-    // f = fopen("resultados_ColorBordes3.csv", "ab");
+    // f = fopen("resultados_ColorBordes3C.csv", "ab");
 
-    fprintf(f, "%llu\n", cant_ciclos);
+    // fprintf(f, "%llu\n", cant_ciclos);
 
     // printf("Tiempo de ejecución:\n");
     // printf("  Comienzo                          : %llu\n", start);

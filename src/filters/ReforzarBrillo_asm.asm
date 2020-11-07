@@ -58,15 +58,20 @@ ReforzarBrillo_asm:
     shl rdx, 32
     or rax, rdx
     
-
     .ciclo_brillos:
-        sub rax, 8
         cmp rax, 0
         je .fin
+        cmp rax, 8
+        jne .levanto_pixeles
+        movq xmm0, [rdi]
+        jmp .procesado
 
+
+        .levanto_pixeles:
         movdqu xmm0, [rdi]  ; xmm0 = [ a_3 | r_3 | g_3 | b_3 | ... ]
-        movdqa xmm1, xmm0
         
+        .procesado:
+        movdqa xmm1, xmm0
         pshufb xmm0, xmm15  ; xmm0 = [ pixel 1 | pixel 0 ] y con el formato [ G | R | G | B ] para facilitar la suma
         
         ; ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +137,7 @@ ReforzarBrillo_asm:
 
         add rsi, 8
         add rdi, 8
+        sub rax, 8
         jmp .ciclo_brillos
 
     .fin:

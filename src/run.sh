@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #ReforzarBrillo
-echo "ciclos" >> resultados_ReforzarBrillo1.csv
+# echo "ciclos" >> resultados_ReforzarBrillo1.csv
 # echo "ciclos" >> resultados_ReforzarBrillo2.csv
 # echo "ciclos" >> resultados_ReforzarBrillo3.csv
 
@@ -26,8 +26,8 @@ echo "Corriendo casos de prueba"
 for i in {1..100}
 do
 	./build/tp2 ReforzarBrillo -i asm -t 500 tests/data/imagenes_a_testear/SweetNovember.$i.bmp 100 50 50 50
-	# ./build/tp2 ImagenFantasma -i asm -t 500 tests/data/imagenes_a_testear/NoCountryForOldMen.$i.bmp 1 1
-	# ./build/tp2 ColorBordes -i asm -t 500 tests/data/imagenes_a_testear/NoCountryForOldMen.$i.bmp
+	# ./build/tp2 ImagenFantasma -i asm -t 500 tests/data/imagenes_a_testear/SweetNovember.$i.bmp 1 1
+	# ./build/tp2 ColorBordes -i asm -t 500 tests/data/imagenes_a_testear/SweetNovember.$i.bmp
 done
 
 rm tests/data/imagenes_a_testear/*
