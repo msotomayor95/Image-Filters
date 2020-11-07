@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #ReforzarBrillo
-# echo "ciclos" >> resultados_ReforzarBrillo1.csv
+echo "ciclos" >> resultados_ReforzarBrillo1.csv
 # echo "ciclos" >> resultados_ReforzarBrillo2.csv
 # echo "ciclos" >> resultados_ReforzarBrillo3.csv
 
 #ImagenFantasma
-# echo "ciclos" >> resultados_ImagenFantasma1.csv
+# echo "ciclos" >> resultados_ImagenFantasma1C.csv
 # echo "ciclos" >> resultados_ImagenFantasma2.csv
 # echo "ciclos" >> resultados_ImagenFantasma3.csv
 
