@@ -8,7 +8,7 @@ extiende_y_copia_green_pixeles_bajos: DB 0x00, 0x80, 0x01, 0x80, 0x02, 0x80, 0x0
 
 divisor_8: times 4 DD 8.0
 
-const_f: DD 0.9, 0.9, 0.9, 1  
+const_f: DD 0.9, 0.9, 0.9, 1.0
 
 transparencias: times 4 DD 0xFF000000
 
