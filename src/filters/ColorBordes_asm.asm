@@ -57,9 +57,9 @@ ColorBordes_asm:
 	lea rsi, [rsi + r8 + 4]				; rsi = m[1][1]
 	.ciclo:
 		
-		movdqu xmm2, [rdi + r8*2]		; xmm2 = p[i+1][j+2] | p[i+1][j+1] | p[i+1][j] | p[i+1][j-1]  
-		movdqu xmm1, [rdi + r8]			; xmm1 = p[i][j+2]   | p[i][j+1]   | p[i][j]   | p[i][j-1]
-		movdqu xmm0, [rdi]				; xmm0 = p[i-1][j+2] | p[i-1][j+1] | p[i-1][j] | p[i-1][j-1]
+		movdqu xmm2, [rdi + r8*2]		; xmm2 = m[i+1][j+2] | m[i+1][j+1] | m[i+1][j] | m[i+1][j-1]  
+		movdqu xmm1, [rdi + r8]			; xmm1 = m[i][j+2]   | m[i][j+1]   | m[i][j]   | m[i][j-1]
+		movdqu xmm0, [rdi]				; xmm0 = m[i-1][j+2] | m[i-1][j+1] | m[i-1][j] | m[i-1][j-1]
 
 		movdqa xmm3, xmm0				; copio las filas que uso para el ciclo ii del px0
 		movdqa xmm4, xmm1
@@ -68,18 +68,18 @@ ColorBordes_asm:
 		movdqa xmm7, xmm1
 		movdqa xmm8, xmm2				
 										; px0:
-		pshufb xmm3, xmm15				; xmm3 = 0 | 0 | p[i-1][j+1].r | p[i-1][j-1].r | p[i-1][j+1].g | p[i-1][j-1].g | p[i-1][j+1].b | p[i-1][j-1].b
-		pshufb xmm4, xmm15				; xmm4 = 0 | 0 | p[i][j+1].r | p[i][j-1].r | p[i][j+1].g | p[i][j-1].g | p[i][j+1].b | p[i][j-1].b
-		pshufb xmm5, xmm15				; xmm5 = 0 | 0 | p[i+1][j+1].r | p[i+1][j-1].r | p[i+1][j+1].g | p[i+1][j-1].g | p[i+1][j+1].b | p[i+1][j-1].b
+		pshufb xmm3, xmm15				; xmm3 = 0 | 0 | m[i-1][j+1].r | m[i-1][j-1].r | m[i-1][j+1].g | m[i-1][j-1].g | m[i-1][j+1].b | m[i-1][j-1].b
+		pshufb xmm4, xmm15				; xmm4 = 0 | 0 | m[i][j+1].r   | m[i][j-1].r   | m[i][j+1].g   | m[i][j-1].g   | m[i][j+1].b   | m[i][j-1].b
+		pshufb xmm5, xmm15				; xmm5 = 0 | 0 | m[i+1][j+1].r | m[i+1][j-1].r | m[i+1][j+1].g | m[i+1][j-1].g | m[i+1][j+1].b | m[i+1][j-1].b
 										; px1:
-		pshufb xmm6, xmm14				; xmm6 = 0 | 0 | p[i-1][j+2].r | p[i-1][j].r | p[i-1][j+2].g | p[i-1][j].g | p[i-1][j+2].b | p[i-1][j].b
-		pshufb xmm7, xmm14				; xmm7 = 0 | 0 | p[i][j+2].r | p[i][j].r | p[i][j+2].g | p[i][j].g | p[i][j+2].b | p[i][j].b
-		pshufb xmm8, xmm14				; xmm8 = 0 | 0 | p[i+1][j+2].r | p[i+1][j].r | p[i+1][j+2].g | p[i+1][j].g | p[i+1][j+2].b | p[i+1][j].b
+		pshufb xmm6, xmm14				; xmm6 = 0 | 0 | m[i-1][j+2].r | m[i-1][j].r | m[i-1][j+2].g | m[i-1][j].g | m[i-1][j+2].b | m[i-1][j].b
+		pshufb xmm7, xmm14				; xmm7 = 0 | 0 | m[i][j+2].r   | m[i][j].r   | m[i][j+2].g   | m[i][j].g   | m[i][j+2].b   | m[i][j].b
+		pshufb xmm8, xmm14				; xmm8 = 0 | 0 | m[i+1][j+2].r | m[i+1][j].r | m[i+1][j+2].g | m[i+1][j].g | m[i+1][j+2].b | m[i+1][j].b
 
 		.cicloIi:
 			.px0Resta:
 				phsubw xmm3, xmm3			; xmm3 = basura | basura | basura | basura | 0 | m[i-1][j-1].r - m[i-1][j+1].r | m[i-1][j-1].g - m[i-1][j+1].g | m[i-1][j-1].b - m[i-1][j+1].b
-				phsubw xmm4, xmm4			; xmm4 = basura | basura | basura | basura | 0 | m[i][j-1].r - m[i][j+1].r | m[i][j-1].g - m[i][j+1].g | m[i][j-1].b - m[i][j+1].b
+				phsubw xmm4, xmm4			; xmm4 = basura | basura | basura | basura | 0 | m[i][j-1].r - m[i][j+1].r     | m[i][j-1].g - m[i][j+1].g     | m[i][j-1].b - m[i][j+1].b
 				phsubw xmm5, xmm5 			; xmm5 = basura | basura | basura | basura | 0 | m[i+1][j-1].r - m[i+1][j+1].r | m[i+1][j-1].g - m[i+1][j+1].g | m[i+1][j-1].b - m[i+1][j+1].b
 			
 			.px1Resta:		
@@ -89,7 +89,7 @@ ColorBordes_asm:
 
 			.absIi:
 				pabsw xmm3, xmm3			; xmm3 = basura | basura | basura | basura | 0 | abs(m[i-1][j-1].r - m[i-1][j+1].r) | abs(m[i-1][j-1].g - m[i-1][j+1].g) | abs(m[i-1][j-1].b - m[i-1][j+1].b)
-				pabsw xmm4, xmm4			; xmm4 = basura | basura | basura | basura | 0 | abs(m[i][j-1].r - m[i][j+1].r) | abs(m[i][j-1].g - m[i][j+1].g) | abs(m[i][j-1].b - m[i][j+1].b)
+				pabsw xmm4, xmm4			; xmm4 = basura | basura | basura | basura | 0 | abs(m[i][j-1].r - m[i][j+1].r)     | abs(m[i][j-1].g - m[i][j+1].g)     | abs(m[i][j-1].b - m[i][j+1].b)
 				pabsw xmm5, xmm5			; xmm5 = basura | basura | basura | basura | 0 | abs(m[i+1][j-1].r - m[i+1][j+1].r) | abs(m[i+1][j-1].g - m[i+1][j+1].g) | abs(m[i+1][j-1].b - m[i+1][j+1].b)
 
 				pabsw xmm6, xmm6
@@ -110,14 +110,14 @@ ColorBordes_asm:
 		movdqa xmm7, xmm2
 		movdqa xmm8, xmm2					; realizo lo mismo solo que estas dos ultimas seran para sumar jj = j + 1
 
-		punpcklbw xmm5, xmm11				; xmm5 = m[i-1][j].a | m[i-1][j].r | m[i-1][j].g | m[i-1][j].b | m[i-1][j-1].a | m[i-1][j-1].r | m[i-1][j-1].g | m[i-1][j-1].b
+		punpcklbw xmm5, xmm11				; xmm5 = m[i-1][j].a   | m[i-1][j].r   | m[i-1][j].g   | m[i-1][j].b   | m[i-1][j-1].a | m[i-1][j-1].r | m[i-1][j-1].g | m[i-1][j-1].b
 		punpckhbw xmm6, xmm11				; xmm6 = m[i-1][j+2].a | m[i-1][j+2].r | m[i-1][j+2].g | m[i-1][j+2].b | m[i-1][j+1].a | m[i-1][j+1].r | m[i-1][j+1].g | m[i-1][j+1].b
-		punpcklbw xmm7, xmm11				; xmm7 = m[i+1][j].a | m[i+1][j].r | m[i+1][j].g | m[i+1][j].b | m[i+1][j-1].a | m[i+1][j-1].r | m[i+1][j-1].g | m[i+1][j-1].b
+		punpcklbw xmm7, xmm11				; xmm7 = m[i+1][j].a   | m[i+1][j].r   | m[i+1][j].g   | m[i+1][j].b   | m[i+1][j-1].a | m[i+1][j-1].r | m[i+1][j-1].g | m[i+1][j-1].b
 		punpckhbw xmm8, xmm11				; xmm8 = m[i+1][j+2].a | m[i+1][j+2].r | m[i+1][j+2].g | m[i+1][j+2].b | m[i+1][j+1].a | m[i+1][j+1].r | m[i+1][j+1].g | m[i+1][j+1].b
 
 		.cicloJj:
 			.restaJj:
-				psubsw xmm5, xmm7			; xmm5 = basura | m[i-1][j].r - m[i+1][j].r | m[i-1][j].g - m[i+1][j].g | m[i-1][j].b - m[i+1][j].b | basura | m[i-1][j-1].r - m[i+1][j-1].r | m[i-1][j-1].g - m[i+1][j-1].g | m[i-1][j-1].b - m[i+1][j-1].b 
+				psubsw xmm5, xmm7			; xmm5 = basura | m[i-1][j].r - m[i+1][j].r     | m[i-1][j].g - m[i+1][j].g     | m[i-1][j].b - m[i+1][j].b     | basura | m[i-1][j-1].r - m[i+1][j-1].r | m[i-1][j-1].g - m[i+1][j-1].g | m[i-1][j-1].b - m[i+1][j-1].b 
 				psubsw xmm6, xmm8			; xmm6 = basura | m[i-1][j+2].r - m[i+1][j+2].r | m[i-1][j+2].g - m[i+1][j+2].g | m[i-1][j+2].b - m[i+1][j+2].b | basura | m[i-1][j+1].r - m[i+1][j+1].r | m[i-1][j+1].g - m[i+1][j+1].g | m[i-1][j+1].b - m[i+1][j+1].b 
 		
 			.absJj:
