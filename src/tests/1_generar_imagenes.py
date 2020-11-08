@@ -8,6 +8,7 @@ import sys
 # pocas imagenes base.
 
 IMAGENES=["Misery.bmp", "SweetNovember.bmp"]
+# IMAGENES=["SweetNovember.bmp"]
 
 assure_dirs()
 
