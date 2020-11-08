@@ -118,8 +118,8 @@ En el presente trabajo se describe la problemática de ...
 
 \section{Introducción}
 
-SIMD (single instruction, multiple data) es una arquitectura de computaci\'on centrada en el procesamiento simultaneo una operaci\'on sobre varios datos mediante una \'unica isntrucci\'on. Tal t\'ecnica suele ser aplicada para trabajar de manera eficiente sobre vectores y matrices de datos. \par
-El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquiridos en las clases sobre SIMD. Utilizando esta arquitectura implementaremos distintos algoritmos en ASM creando filtros sobre imágenes para luego comparar su rendimiento con una implementación en C.
+SIMD (single instruction, multiple data) es una arquitectura de computaci\'on centrada en el procesamiento simultaneo de una operaci\'on sobre varios datos mediante una \'unica isntrucci\'on. Tal t\'ecnica suele ser aplicada para trabajar de manera eficiente sobre vectores y matrices de datos. \par
+El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquiridos en las clases sobre SIMD. Utilizando esta arquitectura implementaremos distintos algoritmos en ASM creando filtros sobre imágenes para luego comparar su rendimiento contra su implementación en C.
 
 
 \section{Desarrrollo}
@@ -127,7 +127,6 @@ El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquirido
 \begin{figure}
   \begin{center}
 	\includegraphics[scale=0.66]{img/logouba.jpg}
-	\caption{Descripcion de la figura}
 	\label{nombreparareferenciar}
   \end{center}
 \end{figure}
@@ -188,24 +187,46 @@ Esto se muestra en la figura~\ref{Imagen fantasma}.
 Con esto tenemos nuestros 4 pixeles procesados. Por \'ultimo queda realizar 4 conversiones de float con truncamiento a doubleword en $R_{px0}$, $R_{px1}$, $R_{px2}$, desempaquetar (haciendo las conversiones intermedias) cada registro en 1 solo que junte los 4 pixeles procesados.
 
 \paragraph{Comentarios sobre el signado en operaciones:} Algunas conversiones u operaciones no existen para n\'umeros sin signo, esto puede generar problemas si lo n\'umeros sin signo sobre los que se quiere operar son tan grandes que su representaci\'on binaria tiene el bit mas significativo en 1, pues en su interpretaci\'on signada serian negativos.
-\paragraph{}Los n\'umeros mas grande sobre los que trabajamos son $B$ y $componente(px) * 0,9 + B/2$. Si todas las componentes de $m[ii][jj]$ valen 255 $\Rightarrow B = 4*255/4 = 255$. Luego $componente(px) * 0,9 + B/2 \simeq  230 + 126 \simeq 356$. Pero este calculo y el de $B$ se realizan en datos de tamaño words o doubleword $\Rightarrow$ es decir nos sobran bits para representar $356$.
+\paragraph{}Los n\'umeros mas grande sobre los que trabajamos son $B$ y $componente(px) * 0,9 + B/2$. Si todas las componentes de $m[ii][jj]$ valen 255 $\Rightarrow B = 4*255/4 = 255$. Luego $componente(px) * 0,9 + B/2 \simeq  230 + 126 \simeq 356$. Como todas las operaciones son realizadas luego de convertir los datos al menos a words tenemos los suficientes bits para representar $356$ sin usar el bit mas significativo.
 
-\newpage
+\subsection{Color Bordes}
+\subsubsection{Descripci\'on}
 
-el code snippet lo deje por las dudas, por si lo necesito hago copy paste
+\paragraph{} Color bordes modifica cada pixel operando mediante restas sobre los 8 pixeles que lo rodean, generando valores pequeños y similares para cada componente si los 8 pixeles tenían un color parecido entre ellos y variando estos valores en caso contrario. Esto genera diferentes componentes conexas con colores oscuros separadas por bordes de colores variables y claros. Adem\'as agrega un marco blanco de 1 pixel.  
+
+\subsubsection{Desarrollo}
+
+\paragraph{} La matriz se recorre de manera similar a la implementaci\'on en C, pero en cada iteraci\'on se modifican 2 pixeles. Utilizamos las herramientas de SIMD para levantar 3 filas ($i-1$, $i$ y $i+1$) de 4 pixeles, re ordenar los datos y luego operar. Nos referiremos a cada una de estas filas con mediante los nombres $R_{i-1}$, $R_i$ y $R_{i+1}$. Llamaremos $px0$, $px1$, $px2$ y $px3$ a los pixeles de cada fila. Modificaremos $px1$ y $px2$ de $R_i$.
+
+\paragraph{ii:} Con el objetivo de realizar $m[ii][j-1] - m[ii][j+1]$ mediante restas horizontales armamos 2 mascaras, una para procesar los datos de $px1$ y otra para $px2$. Esta mascara adem\'as extiende los datos de byte a words con ceros.
+ 
 
 
-\begin{codesnippet}
-\begin{verbatim}
+\begin{align*}
+	R_i &= [\, \, \, \, A_3 \, ,\, \, \, \, \, R_3 ,\, \, \, \, G_3 \, ,\, \, \, \, B_3 \, ,\, \, \, \, A_2 \, ,\, \, \, \, R_2 \, ,\, \, \, \, G_2 \, ,\, \, \, \, B_2 \, , \, \, \, \,  A_1 \, \, , \, \, \, \, R_1 \, , \, \, \, \, G_1 \, , \, \, \, \, B_1 \, , \, \, \, \, A_0 \, \, , \, \, \, \, R_0 \, , \, \, \, \, G_0 \, , \, \, \, \, B_0 \, \,]\\
+	indice &= [0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00]\\
+	mascara_{px1} &= [0x80, 0x05, 0x80, 0x06, 0x80, 0x05, 0x80, 0x04, 0x80, 0x01, 0x80, 0x02, 0x80, 0x01, 0x80, 0x00] \\
+\end{align*}
+\hrule
+\begin{align*}
+	pshufb &= [0, 0, R_2, R_0, G_2, G_0, B_2, B_0] \leftarrow \text{en words}
+\end{align*} 
 
-struct Pepe {
+\paragraph{} El proceso anterior es aplicado a cada uno de los 3 registros con ambas mascaras. Teniendo los datos acomodados en 6 registros (3 filas para cada pixel) los siguientes pasos son directos y simples. Primero realizamos una resta horizontal en cada uno de ellos consiguiendo $m[ii][j-1] - m[ii][j+1]$ de cada componente, luego aplicamos el valor absoluto y acumulamos los valores de cada componente.
 
-    ...
+\paragraph{jj :}En este caso primero operamos y luego reordenamos los datos. Esta vez nuestro iterador es $jj$ y se mueve por $j$ mientras que opera entre las filas $i-1$ e $i+1$. Queremos calcular $m[i-1][jj] - m[i+1][jj]$ para cada componente.
 
-};
+\begin{itemize}
+	\item Desempaquetamos $R_{i-1}$ y $R_{i+1}$ a words.
+	\item Restamos $R_{i-1}$ y $R_{i+1}$ desempaquetados.
+	\item Aplicamos valor absoluto a los resultados
+	\item A partir de este punto tenemos 2 registros $R_1$ y $R_2$. $R_1$ contiene las restas en words de los componentes de $j$ y $j-1$, mientras $R_2$ contiene las restas de $j+2$ y $j+1$.
+	\item Para acumular estos resultados utilizo 1 registro intermedio para cada uno. Paso $R_1$ a $R_3$ y shifteo los resultados $j$ a la parte mas baja de $R_3$. Ahora el primer word de $R_1$, $R_2$ y $R_3$ contienen los resultados de $j-1$, $j+1$ y $j$ respectivamente.
+	\item Sumamos los 3 registros y obtenemos las acumulaciones $jj$ de las operaciones entre componentes para $px1$. Haciendo un proceso similar, pero con shifteos a la parte alta obtenemos las acumulaciones $jj$ de $px2$. 
+\end{itemize}
 
-\end{verbatim}
-\end{codesnippet}
+\paragraph{} Finalmente sumamos las acumulaciones $ii$ y $jj$ para $px1$ y $px2$, convertimos los resultados utilizando empaquetado saturado sin signo y lo guardamos en la imagen destino.
+
 
 \subsection{ReforzarBrillo}
 
