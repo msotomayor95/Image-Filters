@@ -70,7 +70,6 @@ ImagenFantasma_asm:
 
 	.ciclo:		
 		.cicloHorizontal:
-			inc rdx
 			movdqu xmm0, [rdi + r9*4]		; xmm0 = p3 | p2 | p1 | p0, r9*4 es j*4, es decir el movimiento horizontal
 			movq xmm1, [rsi + rcx*4]		; xmm1 = basura | basura | p1 | p0
 											; Levantamos matriz[ii][jj] con la precondicion de que j sea par. 
