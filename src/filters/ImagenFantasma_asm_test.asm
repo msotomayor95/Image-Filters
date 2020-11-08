@@ -165,7 +165,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -180,7 +180,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -250,7 +250,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -265,7 +265,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -335,7 +335,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -350,7 +350,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -420,7 +420,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -435,7 +435,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -505,7 +505,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -520,7 +520,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -590,7 +590,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -605,7 +605,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -675,7 +675,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -690,7 +690,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -760,7 +760,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -775,7 +775,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
@@ -845,7 +845,7 @@ ImagenFantasma_asm:
 											; si a i e i+1 le corresponde ii => i+2 e i+3 le corresponde ii+1.
 											; Teniendo en cuenta ambas condiciones podemos tomar 2 pixeles ii e ii+1 para trabajar los pixeles 
 											; j, j+1, j+2 y j+3
-			.armoB:
+			
 				pshufb xmm1, xmm15				; xmm1 = g1 | r1 | g1 | b1 | g0 | r0 | g0 | b0 | <- en words 
 				phaddw xmm1, xmm1				; xmm1 = g1+r1 | g1+b1 | g0+r0 | g0+b0 | g1+r1 | g1+b1 | g0+r0 | g0+b0 |
 				phaddw xmm1, xmm1				; xmm1 = g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0 | g1+r1+g1+b1 | g0+r0+g0+b0
@@ -860,7 +860,7 @@ ImagenFantasma_asm:
 				; psrld xmm1, 3
 				; psrld xmm2, 3
 
-			.modificoLasComponentes:
+			
 				movdqu xmm3, xmm0
 				movdqu xmm4, xmm0
 				movdqu xmm5, xmm0
