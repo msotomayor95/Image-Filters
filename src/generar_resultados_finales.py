@@ -1,17 +1,17 @@
 import pandas
 import matplotlib.pyplot as plt
 
-# df1asm = pandas.read_csv("resultados_ReforzarBrillo1ASM.csv")
-# df1c = pandas.read_csv("resultados_ReforzarBrillo1C.csv")
-# df2c = pandas.read_csv("resultados_ReforzarBrillo2C.csv")
-# df3c = pandas.read_csv("resultados_ReforzarBrillo3C.csv")
+df1asm = pandas.read_csv("resultados_ReforzarBrillo1ASM.csv")
+df1c = pandas.read_csv("resultados_ReforzarBrillo1C.csv")
+df2c = pandas.read_csv("resultados_ReforzarBrillo2C.csv")
+df3c = pandas.read_csv("resultados_ReforzarBrillo3C.csv")
 
-df1asm = pandas.read_csv("resultados_ImagenFantasma1ASM.csv")
-df1c = pandas.read_csv("resultados_ImagenFantasma1C.csv")
-df2c = pandas.read_csv("resultados_ImagenFantasma2C.csv")
-df3c = pandas.read_csv("resultados_ImagenFantasma3C.csv")
+# df1asm = pandas.read_csv("resultados_ImagenFantasma1ASM.csv")
+# df1c = pandas.read_csv("resultados_ImagenFantasma1C.csv")
+# df2c = pandas.read_csv("resultados_ImagenFantasma2C.csv")
+# df3c = pandas.read_csv("resultados_ImagenFantasma3C.csv")
 
-# df1asm = pandas.rad_csv("resultados_ColorBordes1ASM.csv")
+# df1asm = pandas.read_csv("resultados_ColorBordes1ASM.csv")
 # df1c = pandas.read_csv("resultados_ColorBordes1C.csv")
 # df2c = pandas.read_csv("resultados_ColorBordes2C.csv")
 # df3c = pandas.read_csv("resultados_ColorBordes3C.csv")
@@ -51,6 +51,12 @@ plt.ylabel('Ticks de Reloj')
 # plt.yscale('log')
 
 plt.legend(loc="upper left")
-plt.title("Comparacion de ASM contra C con distintos tipos de flags de Optimizacion")
 
-plt.savefig('imagen_fantasma.png')
+plt.title("Reforzar Brillo")
+# plt.title("Imagen Fantasma")
+# plt.title("Color Bordes")
+
+# plt.show()
+plt.savefig('reforzar_brillo.png')
+# plt.savefig('imagen_fantasma.png')
+# plt.savefig('color_bordes.png')
