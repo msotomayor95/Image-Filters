@@ -24,33 +24,7 @@ ReforzarBrillo_asm:
     push rbp
     mov rbp, rsp    ; StackFrame
 
-    movdqa xmm15, [extiende_y_copia_green_bajo]
-
     pxor xmm9, xmm9
-
-    movd xmm14, [rbp + 16]      ; Muevo umbralSup a la parte baja xmm13
-    pshufd xmm14, xmm14, 0x00   ; [ umbralSup | umbralSup | umbralSup | umbralSup ]
-
-    movd xmm13, [rbp + 24]      ; Muevo umbralInf a la parte baja de xmm12
-    pshufd xmm13, xmm13, 0x00   ; [ umbralInf | umbralInf | umbralInf | umbralInf ]
-
-    movd xmm12, [rbp + 32]      ; Muevo umbralSup a la parte baja de xmm11
-    pshufd xmm12, xmm12, 0x00   ; [ brilloSup | brilloSup | brilloSup | brilloSup ]
-
-    movd xmm11, [rbp + 40]      ; Muevo umbralInf a la parte baja de xmm10
-    pshufd xmm11, xmm11, 0x00   ; [ brilloInf | brilloInf | brilloInf | brilloInf ]
-    
-    ; packusdw xmm14, xmm9        
-    ; psrldq xmm14, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralSup | umbralSup ]
-
-    ; packusdw xmm13, xmm9        
-    ; psrldq xmm13, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | umbralInf | umbralInf ]
-
-    ; packusdw xmm12, xmm9        
-    ; psrldq xmm12, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
-    
-    ; packusdw xmm11, xmm9        
-    ; psrldq xmm11, 4             ; [ 0 | 0 | 0 | 0 | 0 | 0 | brilloSup | brilloSup ]
 
     xor rdx, rdx
     mov eax, r8d 
@@ -59,6 +33,20 @@ ReforzarBrillo_asm:
     or rax, rdx
     
     .ciclo_brillos:
+        movdqa xmm15, [extiende_y_copia_green_bajo]
+
+        movd xmm14, [rbp + 16]      ; Muevo umbralSup a la parte baja xmm13
+        pshufd xmm14, xmm14, 0x00   ; [ umbralSup | umbralSup | umbralSup | umbralSup ]
+
+        movd xmm13, [rbp + 24]      ; Muevo umbralInf a la parte baja de xmm12
+        pshufd xmm13, xmm13, 0x00   ; [ umbralInf | umbralInf | umbralInf | umbralInf ]
+
+        movd xmm12, [rbp + 32]      ; Muevo umbralSup a la parte baja de xmm11
+        pshufd xmm12, xmm12, 0x00   ; [ brilloSup | brilloSup | brilloSup | brilloSup ]
+
+        movd xmm11, [rbp + 40]      ; Muevo umbralInf a la parte baja de xmm10
+        pshufd xmm11, xmm11, 0x00   ; [ brilloInf | brilloInf | brilloInf | brilloInf ]
+        
         cmp rax, 0
         je .fin
         cmp rax, 8
