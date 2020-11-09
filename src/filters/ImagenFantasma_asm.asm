@@ -92,8 +92,6 @@ ImagenFantasma_asm:
 				cvtdq2ps xmm2, xmm2
 				divps xmm1, xmm14				; xmm1 = basura | b0 / 8 | b0 / 8 | b0 / 8 
 				divps xmm2, xmm14				; xmm2 = basura | b1 / 8 | b1 / 8 | b1 / 8
-				; psrld xmm1, 3
-				; psrld xmm2, 3
 
 			.modificoLasComponentes:
 				movdqu xmm3, xmm0
@@ -122,20 +120,10 @@ ImagenFantasma_asm:
 				mulps xmm4, xmm13
 				mulps xmm5, xmm13
 
-				; pmuludq xmm0, xmm13 
-				; pmuludq xmm3, xmm13
-				; pmuludq xmm4, xmm13
-				; pmuludq xmm5, xmm13
-
 				addps xmm0, xmm1				;
 				addps xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
 				addps xmm4, xmm2
 				addps xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
-
-				; paddd xmm0, xmm1				;
-				; paddd xmm3, xmm1				; sumo las componentes de p0 y p1 con b0
-				; paddd xmm4, xmm2
-				; paddd xmm5, xmm2				; sumo las componentes de p2 y p3 con b1
 
 				cvttps2dq xmm0, xmm0				
 				cvttps2dq xmm3, xmm3
