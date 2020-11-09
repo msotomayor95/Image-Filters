@@ -136,7 +136,6 @@ El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquirido
 \subsubsection{Descripci\'on}
 
 \paragraph{} Este filtro consiste en generar una imagen fantasma sobre la original, para ello se utiliza la misma imagen original al doble de tamaño y en escala de grises. Ademas se generara a partir de un punto cuyas coordenadas nos dan por parametro.
-Esto se muestra en la figura~\ref{Imagen fantasma}.
 
 \subsubsection{Implementaci\'on}
 
@@ -271,7 +270,29 @@ Ahora, para poder compararlos con los umbrales que pueden ser numeros de hasta 4
 Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los umbrales pasados por parametro. Sabemos que como estamos preguntando por mayor o menor estrictos, no es posible que un b cumpla ambas condiciones al mismo tiempo (?????? estoy super exceptico con respecto a esto).
 
 \section{Resultados}
-%\input{enunciado}
+\subsection{Planteo de hipótesis y experimentos}
+
+\subsubsection{Comparaci\'ones con C}
+
+Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD con las implementaciones en C con diferentes niveles de optimizaciones. Creemos que ASM  sera mucho mas rapido, incluso con optimizaciones aplicadas al codigo C. re escribir mas lindo (?) 
+
+\subsubsection{Desenrollado de ciclos}
+
+\subsubsection{Accesos a memoria}
+
+
+
+\subsection{Dise\~no de instancias y aspectos t\'ecnicos}
+
+
+\paragraph{} Para los experimentos de comparaci\'on de rendimiento armamos instancias de imagenes cuyas resoluciones son multiplo de $32*i x 18*i$ con $\forall i \in [1..100]$.
+
+
+La computadora en donde corrimos los experimentos cuenta con un procesador Intel Core I5-6200U, con 3MB de cach\'e y $2,30$GHz de frecuencia.
+
+
+Para evitar outliers corrimos de 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
+
 
 \section{Conclusión}
 
