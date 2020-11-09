@@ -35,6 +35,9 @@ void ImagenFantasma_c(
 
             float b = (rrr + 2 * ggg + bbb)/4;
 
+            float floatR = rr * 0.9 + b/2;
+            float floatG = gg * 0.9 + b/2;
+            float floatB = bb * 0.9 + b/2;
             int resR = SAT( rr * 0.9 + b/2 );
             int resG = SAT( gg * 0.9 + b/2 );
             int resB = SAT( bb * 0.9 + b/2 );
