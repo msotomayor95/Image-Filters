@@ -39,8 +39,8 @@ ImagenFantasma_asm:
 	mov r12, rsi						; r12  = dst
 	mov r13d, edx						; r13d = width 
 	mov r14d, ecx						; r14d = height
-	mov edx, [rbp + 16]					; edx = offset_x
-	mov ecx, [rbp + 24]					; ecx = offset_y
+	mov ecx, [rbp + 16]					; ecx = offset_x
+	mov edx, [rbp + 24]					; edx = offset_y
 	xor r8, r8							; r8d  = indice i
 	xor r9, r9							; r9d  = indece j
 	movdqa xmm15, [extiende_y_copia_green_pixeles_bajos]	; mascara para copiar componente green en transparencia y extender las componentes de bytes a DW de los primeros 2 pixeles
@@ -55,14 +55,14 @@ ImagenFantasma_asm:
 											;	<=> dir inicial + (i/2)*4 + (j/2)*4 + offset_x*4 + offset_y*4
 											; entonces puedo sumar el offset_x*4 y offset_y*4 y luego moverme por i/2 * 4 e j/2 * 4 
 
-	mov eax, edx							; eax = offset_x
+	mov eax, edx							; eax = offset_y
 	xor rdx, rdx
-	mul r13d								; edx::eax = n*offset_x
+	mul r13d								; edx::eax = n*offset_y
 	shl rdx, 32
-	or rdx, rax								; rdx = n*offset_x		<- movimiento en filas
+	or rdx, rax								; rdx = n*offset_y		<- movimiento en filas
 	mov rsi, rdi							; rsi = dst
-	lea rsi, [rsi + rdx*4]					; rsi = dir + offset_x*n*4
-	lea rsi, [rsi + rcx*4]					; rsi = dir + offset_y 
+	lea rsi, [rsi + rdx*4]					; rsi = dir + offset_y*n*4
+	lea rsi, [rsi + rcx*4]					; rsi = dir + offset_x 
 	xor rdx, rdx
 	xor rcx, rcx
 											; (nota personal) registros libres para usar: rdx, r15 
