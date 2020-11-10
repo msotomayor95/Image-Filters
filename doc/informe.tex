@@ -249,13 +249,13 @@ disminuye. El efecto resultante es un refuerzo del brillo diferenciado.
 
 En este filtro consideramos varias cosas a la hora de implementarlo.
 
-Para poder detenerminar si un pixel superaba un estaba por debajo de un umbral, necesitabamos hacer la siguiente cuenta:
+Para poder detenerminar si un pixel superaba o estaba por debajo de un umbral, necesitabamos hacer la siguiente cuenta:
 
 \begin{center}
 	b = ( pixel.R + 2 * pixel.G + pixel.B ) / 4
 \end{center}
 
-Seguido a esto, ya que cada componente de un pixel mide 1 byte, dando que el tama\~no total de un pixel es de 4 bytes, en un registro xmm podemos levantar 4 pixeles. Sin embargo, si queremos que nuestra cuenta sea exacta, fue necesario extender el tama\~no de cada componente a 2 bytes. Para esto, en vez de utilizar una instruccion de extension de como pmovzxbw, decidimos utilizar la instrucción de pshufb con una mascara que nos dejá de la componente Verde en la posicion en la que deberia estar la transparencia. Quedando el registro xmm de la siguiente forma: 
+Seguido a esto, ya que cada componente de un pixel mide 1 byte, dando que el tama\~no total de un pixel es de 4 bytes, en un registro xmm podemos levantar 4 pixeles. Sin embargo, si queremos que nuestra cuenta sea exacta, fue necesario extender el tama\~no de cada componente a 2 bytes. Para esto, en vez de utilizar una instruccion de extension como \textbf{pmovzxbw}, decidimos utilizar la instrucción de pshufb con una mascara que nos dejá de la componente Verde en la posicion en la que deberia estar la transparencia. Quedando el registro xmm de la siguiente forma: 
 
 \begin{center}
 	xmm = [ G1 \textpipe\ R1 \textpipe\ G1 \textpipe\ B1 \textpipe\ G0 \textpipe\ R0 \textpipe\ G0 \textpipe\ B0 ]
@@ -267,7 +267,7 @@ Esto nos facilit\'o la suma, ya que solo tuvimos que usar la suma horizontal que
 	xmm = [ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ G1 + R1 \textpipe\ G1 + B1 \textpipe\ G0 + R0 \textpipe\ G0 + B0 ]
 \end{center}
 
-y si usamos nuevamente la suma horizontal nuevamente obtendremos:
+y si usamos nuevamente la suma horizontal, obtendremos:
 
 \begin{center}
 	xmm = [ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ R1 + 2 $\times$ G1 + B1 \textpipe\ R0 + 2 $\times$ G0 + B0 ]
@@ -309,14 +309,14 @@ Luego sumamos o restamos segun corresponda para que los pixeles nos queden de la
 	\begin{tabular}{l}
 		xmmi = [ 0 \textpipe\ R1 + bSup1 \textpipe\ G1 + bSup1 \textpipe\ B1 + bSup1 \textpipe\ 0 \textpipe\ R0 bSup0 \textpipe\ G0 + bSup0 \textpipe\ B0 + bSup0 ] \\
 		
-		xmmi = [ 0 \textpipe\ R1 + bInf1 \ \  \textpipe\ G1 + bInf1 \ \textpipe\ B1 + bInf1 \ \ \textpipe\ 0 \textpipe\ R0 bInf0 \ \ \textpipe\ G0 + bInf0 \ \textpipe\ B0 + bInf0 \ \ ]
+		xmmi = [ 0 \textpipe\ R1 - bInf1 \ \ \ \  \textpipe\ G1 - bInf1 \ \ \ \textpipe\ B1 - bInf1 \ \ \ \textpipe\ 0 \textpipe\ R0 bInf0 \ \ \textpipe\ G0 - bInf0 \ \ \ \ \textpipe\ B0 - bInf0 \ \ ]
 		 
 	\end{tabular}
 \end{center}
 
 Notar que podemos usar el mismo registro para sumar y restar por que los brillos $\neq$ 0 estan en posiciones distintos.
 
-Una vez terminada la cantido este proceso, empaquetamos (de forma saturada) nuevamente para que nos queden los componentes de cada pixel en la parte mas baja del registro xmm, quedandonos de la siguiente forma:
+Una vez terminado este proceso, empaquetamos (de forma saturada) nuevamente para que nos queden los componentes de cada pixel en la parte mas baja del registro xmm, quedandonos de la siguiente forma:
 
 \begin{center}
 	\begin{tabular}{l}
