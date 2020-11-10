@@ -329,11 +329,11 @@ Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos 
 
 \subsubsection{Desenrollado de ciclos en Imagen Fantasma}
 
-Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno para luego comprar los resultados con su versi\'on normal. Nuestra hipótesis era que desenrollar ciclos mejora el rendimiento disminuyendo los ticks de clock usados ya que hay menos overhead de ciclos (comparaciones, saltos) y menos predicci\'on de saltos por parte del procesador.
+Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno para luego comparar los resultados con su versi\'on normal. Nuestra hipótesis era que desenrollar ciclos mejora el rendimiento disminuyendo los ticks de clock usados ya que hay menos overhead de ciclos (comparaciones, saltos) y menos predicci\'on de saltos por parte del procesador.
 
-\subsubsection{Accesos a memoria}
+\subsubsection{Accesos a memoria en Reforzar Brillo}
 
-Utilizamos este experimento
+En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho proposito, modificamos el algoritmo para que en cada iteracion del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar mas y mas ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
 
 \subsection{Dise\~no de instancias y aspectos t\'ecnicos}
 
@@ -371,7 +371,18 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
 	%\caption{Gr\'aficos comparativos de rendimiento entre cada filtro implementado con SIMD y diferentes optimizaciones de su implementaci\'on en C}
 \end{figure}
 
-\FloatBarrier
+
+\newpage
+
+\subsubsection{Accesos a memoria}
+
+Como planteamos anteriormente, tomamos las medianas para cada resolucion y nos fijamos las diferencias entre la implementacion original (A) y la que tiene accesos a memoria en cada iteracion (B).
+
+
+\includegraphics[scale=0.5]{img/BoxplotReforzarBrillo.png}
+
+
+Como podemos ver en el boxplot de diferencias, la mayoria de valores se encuentra por debajo de 0, lo que quiere decir que la implementacion A corrio mas rapido con respecto a B y en un vistazo mas cercano, buscamos en la tabla de valores cuales eran los momentos en los que la implementacion B fue superior a la implementacion A, las cuales fueron en valores chicos y a medida que iban aumentando, corroboramos que efectivamente la diferencia era cada vez mayor, corroborando nuestra hipotesis. 
 
 \section{Conclusiones}
 

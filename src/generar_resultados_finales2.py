@@ -23,17 +23,28 @@ df_resultados = pandas.DataFrame()
 df_resultados["ASM1"] = df1asm["ciclos"]
 df_resultados["ASM2"] = df2asm["ciclos"]
 df_resultados["resolucion"] = df1asm["resolucion"]
-df_resultados["diferencia entre A y B"] = df1asm["ciclos"] - df2asm["ciclos"]
+# df_resultados["diferencia entre A y B"] = df1asm["ciclos"] - df2asm["ciclos"]
+
+plt.figure(figsize=(12,6))
+plt.plot(df_resultados["resolucion"], df_resultados["ASM1"], label="Original")
+plt.plot(df_resultados["resolucion"], df_resultados["ASM2"], label="Con Accesos a memoria")
+
+plt.ylabel("Ticks de Reloj")
+plt.xlabel("i")
+
+plt.legend(loc="upper left")
+
+plt.ticklabel_format(style="plain")
+
+plt.show()
 
 # df_resultados.to_csv("resultados_finales_reforzarBrillo.csv")
-df_resultados.to_csv("resultados_finales_ImagenFantasma.csv")
+# df_resultados.to_csv("resultados_finales_ImagenFantasma.csv")
 
 # plt.figure(figsize=(12,6))
 
 # plt.boxplot(df_resultados['diferencia entre A y B'])
 
-# plt.ylabel("Ticks de Reloj")
-# plt.xlabel("i")
 
 # plt.show()
 
@@ -41,10 +52,6 @@ df_resultados.to_csv("resultados_finales_ImagenFantasma.csv")
 
 # fig.xlabel('i')
 # fig.ylabel('Ticks de Reloj')
-
-# plt.ticklabel_format(style="plain")
-
-# fig.legend(loc="upper left")
 
 # plt.title("Reforzar Brillo")
 # plt.title("Imagen Fantasma")
