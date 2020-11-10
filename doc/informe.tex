@@ -273,13 +273,13 @@ y si usamos nuevamente la suma horizontal, obtendremos:
 	xmm = [ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ 0 \textpipe\ R1 + 2 $\times$ G1 + B1 \textpipe\ R0 + 2 $\times$ G0 + B0 ]
 \end{center}
 
-Finalmente divisimos por 4 usando un shift empaquetado de a word de 2 bits a derecha para que nos quede b, como nosotros queriamos.
+Finalmente dividimos por 4 usando un shift empaquetado de a word de 2 bits a derecha para que nos quede b, como nosotros queríamos.
 
 Ahora, para poder compararlos con los umbrales que pueden ser numeros de hasta 4 bytes, es necesario extender nuevamente de word a dword (2 a 4 bytes) quedando los b de cada pixel expresados en dwords.
 
 Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los umbrales pasados por parametro. Sabemos que como estamos preguntando por mayor o menor estrictos, no es posible que un b cumpla ambas condiciones al mismo tiempo, por lo que podemos evaluar al mismo tiempo ambas condiciones.
 
-Luego, pasamos aplicar la mascara de brillo, tanto Superior como Inferior para asi quedarnos con el brillo correspondiendo en los valores que hayan cumplido la condicion. Quedandonos de la siguiente forma.
+Luego aplicamos la mascara de brillo, tanto Superior como Inferior para así quedarnos con el brillo correspondiente en los valores que hayan cumplido la condición. Quedándonos de la siguiente forma.
 
 \begin{center}
 	\begin{tabular}{l}
@@ -291,9 +291,9 @@ Luego, pasamos aplicar la mascara de brillo, tanto Superior como Inferior para a
 
 Notemos que si existe el brilloInf para un pixel, no puede existir un brilloSup para el mismo pixel por lo anteriormente mencionado.
 
-Finalmente para poder sumar o restar dichos brillos de forma consistentes, empaquetaremos los brillos a word, saturando en caso de ser necesario.
+Finalmente para poder sumar o restar dichos brillos de forma consistente, empaquetaremos los brillos a word, saturando en caso de ser necesario.
 
-Luego, aplicaremos un shuffle de words (tanto high como low), para que dejar cada uno en los lugares correspondientes para poder sumarlos. Previamente a esto desempaquetamos los pixeles originales a word para poder sumarlos o restarlos segun corresponda. Nuestros registro en donde tenemos los brillos quedara de la siguiente forma:
+Luego, aplicaremos un shuffle de words (tanto high como low), dejando cada uno en los lugares correspondientes para poder sumarlos. Previamente a esto desempaquetamos los pixeles originales a word para poder sumarlos o restarlos según corresponda. Los registros en donde tenemos los brillos quedaran de la siguiente forma:
 
 \begin{center}
 	\begin{tabular}{l}
@@ -303,7 +303,7 @@ Luego, aplicaremos un shuffle de words (tanto high como low), para que dejar cad
 \end{center}
 
 
-Luego sumamos o restamos segun corresponda para que los pixeles nos queden de la siguiente forma:
+Luego sumamos o restamos según corresponda para que los pixeles nos queden de la siguiente forma:
 
 \begin{center}
 	\begin{tabular}{l}
@@ -314,9 +314,9 @@ Luego sumamos o restamos segun corresponda para que los pixeles nos queden de la
 	\end{tabular}
 \end{center}
 
-Notar que podemos usar el mismo registro para sumar y restar por que los brillos $\neq$ 0 estan en posiciones distintos.
+Notar que podemos usar el mismo registro para sumar y restar por que los brillos $\neq$ 0 están en posiciones distintas.
 
-Una vez terminado este proceso, empaquetamos (de forma saturada) nuevamente para que nos queden los componentes de cada pixel en la parte mas baja del registro xmm, quedandonos de la siguiente forma:
+Una vez terminado este proceso, empaquetamos (de forma saturada) nuevamente para que nos queden los componentes de cada pixel en la parte mas baja del registro xmm, quedándonos de la siguiente forma:
 
 \begin{center}
 	\begin{tabular}{l}
@@ -327,7 +327,7 @@ Una vez terminado este proceso, empaquetamos (de forma saturada) nuevamente para
 \end{center}
 
 
-Finalmente solo queda poner el quadword mas bajo de xmmi en la direccion a la que apunta rsi (que es mi iterador de la imagen destino).
+Finalmente solo queda poner el quadword mas bajo de xmmi en la dirección a la que apunta rsi (que es mi iterador de la imagen destino).
 
 \section{Resultados}
 \subsection{Planteo de hipótesis y experimentos}
