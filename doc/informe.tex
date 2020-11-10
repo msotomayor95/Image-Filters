@@ -249,7 +249,7 @@ disminuye. El efecto resultante es un refuerzo del brillo diferenciado.
 
 En este filtro consideramos varias cosas a la hora de implementarlo.
 
-Para poder detenerminar si un pixel superaba un estaba por debajo de un umbral, necesitabamos hacer la siguiente cuenta:
+Para poder determinar si un pixel superaba un estaba por debajo de un umbral, necesitabamos hacer la siguiente cuenta:
 
 \begin{center}
 	b = ( pixel.R + 2 * pixel.G + pixel.B ) / 4
@@ -342,7 +342,7 @@ Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno pa
 
 \subsubsection{Accesos a memoria en Reforzar Brillo}
 
-En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho propósito, modificamos el algoritmo para que en cada iteración del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar m\'as y m\'as ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
+En este experimento, nos preguntamos cuanto nos cuesta cada acceso a memoria. Para dicho propósito, modificamos el algoritmo para que en cada iteración del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar m\'as y m\'as ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
 
 \subsection{Dise\~no de instancias y aspectos t\'ecnicos}
 
@@ -353,7 +353,7 @@ En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. P
 La computadora en donde corrimos los experimentos cuenta con un procesador Intel Core I5-6200U, con 3MB de cach\'e y $2,30$GHz de frecuencia.
 
 
-Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
+Para evitar valores at\'ipicos corrimos 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
 
 \subsection{Experimentaci\'on}
 
@@ -361,9 +361,9 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
 
 \paragraph{} Si observamos el gr\'afico de ASM en la figura 1 se puede apreciar un crecimiento recién en las instancias mas grandes, en cambio los gr\'aficos de la implementaci\'on C presentan pendientes mas pronunciadas en todos sus puntos. Nuestra implementaci\'on supera ampliamente no solo a la optimizaci\'on O2 de C si no también a O3, creemos que si bien manipular varios datos en simultaneo es muy ventajoso, poder realizar hasta 4 operaciones en punto flotante simplifica mucho el trabajo del procesador ya que estas operaciones son en particular muy costosas.\\
  
- En la figura 2 la implementaci\'on también muestra una ventaja grande sobre las implementaciones optimizadas en C. Probablemente tenga que ver con los accesos a memoria y la cache. En el caso de C hay varios accesos a memoria distintos, en particular en el primer ciclo por filas causando que el primer acceso a memoria potencialmente genere un miss en la cache, ademas este proceso se repite por cada pixel a modificar de la imagen. En cambio la implementaci\'on en ASM contiene 3 \'unicos accesos a memoria por iteraci\'on en donde se levantan 4 pixeles de 3 filas diferentes, todas las dem\'as operaciones se hacen entre registros y se procesan 2 pixeles a la vez.  \\
+ En la figura 2 la implementaci\'on también muestra una ventaja grande sobre las implementaciones optimizadas en C. Probablemente tenga que ver con los accesos a memoria y la cache. En el caso de C hay varios accesos a memoria distintos, en particular en el ciclo por filas causando que el primer acceso a memoria a cada fila potencialmente genere un miss en la cache, adem\'as este proceso se repite por cada pixel a modificar de la imagen. En cambio la implementaci\'on en ASM contiene 3 \'unicos accesos a memoria por iteraci\'on en donde se levantan 4 pixeles de 3 filas diferentes, todas las dem\'as operaciones se realizan entre registros y se procesan 2 pixeles a la vez.  \\
 
-La figura 3 nos muestra que a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante. Corroborando así, la hipótesis que plateamos sobre todos los filtros.
+La figura 3 nos muestra que a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante.
 
 
 \begin{figure}[h!]			
@@ -398,7 +398,7 @@ Como planteamos anteriormente, tomamos las medianas para cada resolución y nos 
 \includegraphics[scale=0.5]{img/BoxplotReforzarBrillo.png}
 
 
-Como podemos ver en el boxplot de diferencias, la mayoría de valores se encuentra por debajo de 0, lo que quiere decir que la implementaci\'on B corrió mas rápido con respecto a A. En algunos casos A fue efectivamente superior a B y en un vistazo mas cercano buscamos en la tabla de valores estos casos y solo se daban unos pocos con resoluciones muy chicas ($i < 5$). Creemos que al ser resoluciones tan chicas, hay menos misses en la cache ya que logramos recorrer la imagen en menos ciclos.
+Como podemos ver en el boxplot de diferencias, la mayoría de valores se encuentra por debajo de 0, lo que quiere decir que la implementaci\'on A corrió mas rápido con respecto a B. En algunos casos B fue efectivamente superior a A. En un vistazo mas cercano buscamos en la tabla de valores estos casos y solo se daban unos pocos con resoluciones muy chicas ($i < 5$). Creemos que al ser resoluciones tan chicas, hay menos misses en la cache ya que logramos recorrer la imagen en menos ciclos.
 
 \section{Conclusiones}
 En general pudimos corroborar nuestras hip\'otesis. La implementaci\'on en ASM usando las herramientas de SIMD provee un aprovechamiento de los recursos difícil de alcanzar sin entender el contexto del problema.
