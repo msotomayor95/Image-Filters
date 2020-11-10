@@ -361,7 +361,7 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
 
 \paragraph{} Si observamos el gr\'afico de ASM en la figura 1 se puede apreciar un crecimiento recién en las instancias mas grandes, en cambio los gr\'aficos de la implementaci\'on C presentan pendientes mas pronunciadas en todos sus puntos. Nuestra implementaci\'on supera ampliamente no solo a la optimizaci\'on O2 de C si no también a O3, creemos que si bien manipular varios datos en simultaneo es muy ventajoso, poder realizar hasta 4 operaciones en punto flotante simplifica mucho el trabajo del procesador ya que estas operaciones son en particular muy costosas.\\
  
- En la figura 2 la implementaci\'on también muestra una ventaja grande sobre las implementaciones optimizadas en C. Probablemente tenga que ver con los accesos a memoria y la cache. En el caso de C hay varios accesos a memoria distintos, en particular en el primer ciclo por filas causando que el primer acceso a memoria potencialmente genere genere un miss en la cache, ademas este proceso se repite por cada pixel a modificar de la imagen. En cambio la implementaci\'on en ASM contiene 3 \'unicos accesos a memoria por iteraci\'on en donde se levantan 4 pixeles de 3 filas diferentes, todas las dem\'as operaciones se hacen entre registros y se procesan 2 pixeles a la vez.  \\
+ En la figura 2 la implementaci\'on también muestra una ventaja grande sobre las implementaciones optimizadas en C. Probablemente tenga que ver con los accesos a memoria y la cache. En el caso de C hay varios accesos a memoria distintos, en particular en el primer ciclo por filas causando que el primer acceso a memoria potencialmente genere un miss en la cache, ademas este proceso se repite por cada pixel a modificar de la imagen. En cambio la implementaci\'on en ASM contiene 3 \'unicos accesos a memoria por iteraci\'on en donde se levantan 4 pixeles de 3 filas diferentes, todas las dem\'as operaciones se hacen entre registros y se procesan 2 pixeles a la vez.  \\
 
 La figura 3 nos muestra que a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante. Corroborando así, la hipótesis que plateamos sobre todos los filtros.
 
@@ -398,7 +398,7 @@ Como planteamos anteriormente, tomamos las medianas para cada resolución y nos 
 \includegraphics[scale=0.5]{img/BoxplotReforzarBrillo.png}
 
 
-Como podemos ver en el boxplot de diferencias, la mayoría de valores se encuentra por debajo de 0, lo que quiere decir que la implementaci\'on B corrió mas rápido con respecto a A. En algunos casos A fue efectivamente superior a B, en un vistazo mas cercano buscamos en la tabla de valores estos casos y solo se daban unos pocos con resoluciones muy chicas ($i < 5$). Creemos que al ser resoluciones tan chicas, hay menos misses en la cache.
+Como podemos ver en el boxplot de diferencias, la mayoría de valores se encuentra por debajo de 0, lo que quiere decir que la implementaci\'on B corrió mas rápido con respecto a A. En algunos casos A fue efectivamente superior a B y en un vistazo mas cercano buscamos en la tabla de valores estos casos y solo se daban unos pocos con resoluciones muy chicas ($i < 5$). Creemos que al ser resoluciones tan chicas, hay menos misses en la cache ya que logramos recorrer la imagen en menos ciclos.
 
 \section{Conclusiones}
 En general pudimos corroborar nuestras hip\'otesis. La implementaci\'on en ASM usando las herramientas de SIMD provee un aprovechamiento de los recursos difícil de alcanzar sin entender el contexto del problema.
@@ -407,7 +407,7 @@ En general pudimos corroborar nuestras hip\'otesis. La implementaci\'on en ASM u
 \begin{itemize}
 	\item Incluso con optimizaciones el código implementado en C era mucho mas lento que nuestra implementación en ASM 
 	\item Con el experimento de Desenrollado de ciclos pudimos observar como efectivamente el costo de la predicci\'on de saltos y el overhead de ciclos influye sobre el rendimiento del algoritmo.
-	\item Si bien para imágenes muy chicas el acceso a memoria puede no ser tan costoso, 
+	\item Si bien para imágenes muy chicas el acceso a memoria puede no ser tan costoso, sigue siendo un limitante ya que como dijimos en su momento, usar el buffer de memoria puede llegar a condicionar toda la complejidad temporal de nuestro algoritmo.
 \end{itemize}
 
 SIMD es una excelente herramienta de bajo nivel para crear algoritmos que trabajan con vectores y matrices de datos, proporcionan un gran rendimiento comparado a implementaciones en lenguajes de alto nivel. Sin embargo este ahorro de complejidad en la ejecución se traspasa a la hora de producir código ya que resulta mucho mas difícil manipular varios datos simultáneamente y aumenta la cantidad de instrucciones.
