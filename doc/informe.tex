@@ -268,7 +268,57 @@ Finalmente divisimos por 4 usando un shift empaquetado de a word de 2 bits a der
 
 Ahora, para poder compararlos con los umbrales que pueden ser numeros de hasta 4 bytes, es necesario extender nuevamente de word a dword (2 a 4 bytes) quedando los b de cada pixel expresados en dwords.
 
-Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los umbrales pasados por parametro. Sabemos que como estamos preguntando por mayor o menor estrictos, no es posible que un b cumpla ambas condiciones al mismo tiempo (?????? estoy super exceptico con respecto a esto).
+Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los umbrales pasados por parametro. Sabemos que como estamos preguntando por mayor o menor estrictos, no es posible que un b cumpla ambas condiciones al mismo tiempo, por lo que podemos evaluar al mismo tiempo ambas condiciones.
+
+Luego, pasamos aplicar la mascara de brillo, tanto Superior como Inferior para asi quedarnos con el brillo correspondiendo en los valores que hayan cumplido la condicion. Quedandonos de la siguiente forma.
+
+\begin{center}
+	\begin{tabular}{l}
+		xmmi = [ 0 \textpipe\ 0 \textpipe\ brilloSup para pixel 1 \textpipe\ brilloSup para pixel 0 ]\\
+		xmmj = [ 0 \textpipe\ 0 \textpipe\ brilloInf para pixel 1 \ \ \textpipe\ brilloInf para pixel 0 \ ]
+	\end{tabular}
+	
+\end{center}
+
+Notemos que si existe el brilloInf para un pixel, no puede existir un brilloSup para el mismo pixel por lo anteriormente mencionado.
+
+Finalmente para poder sumar o restar dichos brillos de forma consistentes, empaquetaremos los brillos a word, saturando en caso de ser necesario.
+
+Luego, aplicaremos un shuffle de words (tanto high como low), para que dejar cada uno en los lugares correspondientes para poder sumarlos. Previamente a esto desempaquetamos los pixeles originales a word para poder sumarlos o restarlos segun corresponda. Nuestros registro en donde tenemos los brillos quedara de la siguiente forma:
+
+\begin{center}
+	\begin{tabular}{l}
+		xmmi = [ 0 \textpipe\ brilloSup1 \textpipe\ brilloSup1 \textpipe\ brilloSup1 \textpipe\ 0 \textpipe\ brilloSup0 \textpipe\ brilloSup0 \textpipe\ brilloSup0 ] \\
+		xmmj = [ 0 \textpipe\ brilloInf1 \ \  \textpipe\ brilloInf1 \ \textpipe\ brilloInf1 \ \ \textpipe\ 0 \textpipe\ brilloInf0 \ \ \textpipe\ brilloInf0 \ \textpipe\ brilloInf0 \ \ ]
+	\end{tabular}
+\end{center}
+
+
+Luego sumamos o restamos segun corresponda para que los pixeles nos queden de la siguiente forma:
+
+\begin{center}
+	\begin{tabular}{l}
+		xmmi = [ 0 \textpipe\ R1 + bSup1 \textpipe\ G1 + bSup1 \textpipe\ B1 + bSup1 \textpipe\ 0 \textpipe\ R0 bSup0 \textpipe\ G0 + bSup0 \textpipe\ B0 + bSup0 ] \\
+		
+		xmmi = [ 0 \textpipe\ R1 + bInf1 \ \  \textpipe\ G1 + bInf1 \ \textpipe\ B1 + bInf1 \ \ \textpipe\ 0 \textpipe\ R0 bInf0 \ \ \textpipe\ G0 + bInf0 \ \textpipe\ B0 + bInf0 \ \ ]
+		 
+	\end{tabular}
+\end{center}
+
+Notar que podemos usar el mismo registro para sumar y restar por que los brillos $\neq$ 0 estan en posiciones distintos.
+
+Una vez terminada la cantido este proceso, empaquetamos (de forma saturada) nuevamente para que nos queden los componentes de cada pixel en la parte mas baja del registro xmm, quedandonos de la siguiente forma:
+
+\begin{center}
+	\begin{tabular}{l}
+		xmmi = [ ... \textpipe\ nR1 \textpipe\ nG1 \textpipe\ nB1 \textpipe\ nR0 \textpipe\ nG0 \textpipe\ nB0 ]
+	\end{tabular}
+	
+	Solo mostramos los 8 bytes mas bajos
+\end{center}
+
+
+Finalmente solo queda poner el quadword mas bajo de xmmi en la direccion a la que apunta rsi (que es mi iterador de la imagen destino).
 
 \section{Resultados}
 \subsection{Planteo de hipótesis y experimentos}
