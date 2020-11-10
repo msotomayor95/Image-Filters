@@ -95,18 +95,16 @@
 \materia{Organización del Computador II}
 \submateria{Primer Cuatrimestre de 2019}
 \titulo{Trabajo Práctico II}
-\subtitulo{subtítulo del trabajo}
-\integrante{Nombre}{XXX/XX}{mail}
-\integrante{Nombre}{XXX/XX}{mail}
+\subtitulo{Filtros en SIMD}
+\integrante{Sotomayor Marco}{731/14}{marco.soto1995@gmail.com}
+\integrante{Tejera Walter}{362/15}{wtejerac@gmail.com}
 
 \maketitle
 \newpage
 
 \thispagestyle{empty}
 \vfill
-\begin{abstract}
-En el presente trabajo se describe la problemática de ...
-\end{abstract}
+
 
 \thispagestyle{empty}
 \vspace{3cm}
@@ -155,13 +153,13 @@ El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquirido
 		jj &= [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
 	\end{align*}    
 	
-	\paragraph{} El valor de $jj$ para los $j$ impares es el mismo que para el par menor y mas cercano a ese $j$ impar, ya que el operador $"/"$ descarta el resto y devuelve solo el cociente es decir: $j = 2*q \, \wedge \, j+1 = 2*q + r \Rightarrow j/2 = q$ \, y \, $(j+1)/2 = q$. Podemos usar esta informaci\'on para afirmar que si $j = 2 * q \Rightarrow jj(j) == jj(j+1)$ (notar que en el calculo de $jj$, $offset_y$ es siempre la misma constante sumada, no cambia la igualdad).
+	\paragraph{} El valor de $jj$ para los $j$ impares es el mismo que para el par menor y mas cercano a ese $j$ impar, ya que el operador $"/"$ descarta el resto y devuelve solo el cociente es decir: $j = 2*q \, \wedge \, j+1 = 2*q + r \Rightarrow j/2 = q$ \, y \, $(j+1)/2 = q$. Podemos usar esta informaci\'on para afirmar que si $j = 2 * q \Rightarrow jj(j) == jj(j+1)$ (notar que en el calculo de $jj$, $offset_x$ es siempre la misma constante sumada, no cambia la igualdad).
 	
-	\paragraph{} Esto lo aprovechamos para no calcular $ii$ ni $jj$ en cada iteraci\'on, ya que $i, j$ empiezan en $0 \Rightarrow ii = offset_x, jj=offset_y$. Luego basta con incrementar en 1 a $ii$ o $jj$ por cada 2 incrementos de $i$ y $j$ respectivamente (en nuestro caso los incrementos son de a 2 para $ii$, $jj$ y 4 para $i$ y $j$ ya que se procesan 4 pixeles).
+	\paragraph{} Esto lo aprovechamos para no calcular $ii$ ni $jj$ en cada iteraci\'on, ya que $i, j$ empiezan en $0 \Rightarrow ii = offset_y, jj=offset_x$. Luego basta con incrementar en 1 a $ii$ o $jj$ por cada 2 incrementos de $i$ y $j$ respectivamente (en nuestro caso los incrementos son de a 2 para $jj$ y 4 para $j$ ya que se procesan 4 pixeles).
 \end{center}
 
 
-\paragraph{}Para calcular $B$, utilizamos una mascara que re ordena las componentes de los 2 pixeles $m[ii][jj]$ y $m[ii][jj+1]$ de la siguiente manera: $blue, green, rojo, green$. Este nuevo orden permite que realicemos una suma horizontal, sin embargo no existe suma horizontal de a Byte, por lo que adem\'as extendemos con 0 cada byte usando la misma mascara.  
+\paragraph{}Para calcular $B$, utilizamos una mascara que reordena las componentes de los 2 pixeles $m[ii][jj]$ y $m[ii][jj+1]$ de la siguiente manera: $blue, green, red, green$. Este nuevo orden permite que realicemos una suma horizontal, sin embargo no existe suma horizontal de a Byte, por lo que adem\'as extendemos con 0 cada byte usando la misma mascara.  
 
 \begin{align*}
 	xmm &= [\, \, \, \, * \, \, \, \, \, ,\, \, \, \, \, * \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, ,\, \, \, \, * \, \, \, \, \, \, , \, \, \, \,  A_1 \, , \, \, \, \, R_1 \, , \, \, \, \, G_1 \, , \, \, \, \, B_1 \, , \, \, \, \, A_0 \, , \, \, \, \, R_0 \, , \, \, \, \, G_0 \, , \, \, \, \, B_0 \, \,]\\
@@ -177,14 +175,14 @@ El objetivo de este trabajo pr\'actico es consolidar los conocimientos adquirido
 \paragraph{} Para procesar los pixeles, realizamos los siguiente pasos:
 
 \begin{itemize}
-	\item Se mueven los 4 pixeles a 4 registros difrentes: $R_{px0}$, $R_{px1}$, $R_{px2}$ y $R_{px3}$.
+	\item Se mueven los 4 pixeles a 4 registros diferentes: $R_{px0}$, $R_{px1}$, $R_{px2}$ y $R_{px3}$.
 	\item En cada registro se realizan las conversiones necesarias para pasar de bytes a words y de words a doublewords para el pixel que le corresponda.
 	\item Convertimos las componentes de cada registro a floats.
 	\item Realizamos multiplicaciones vectoriales entre una constante con 4 datos de tipo float con valor 0,9 y cada uno de los $R_{px}$.
 	\item Sumamos $R_{px0}$, $R_{px1}$ con $R_{b0}$ y $R_{px2}$, $R_{px3}$ con $R_{b1}$.
 \end{itemize}
 
-Con esto tenemos nuestros 4 pixeles procesados. Por \'ultimo queda realizar 4 conversiones de float con truncamiento a doubleword en $R_{px0}$, $R_{px1}$, $R_{px2}$, desempaquetar (haciendo las conversiones intermedias) cada registro en 1 solo que junte los 4 pixeles procesados.
+Con esto tenemos nuestros 4 pixeles procesados. Por \'ultimo queda realizar 4 conversiones de float con truncamiento a doubleword en $R_{px0}$, $R_{px1}$, $R_{px2}$ y $R_{px3}$. Desempaquetamos (haciendo las conversiones intermedias) cada registro en 1 solo que junte los 4 pixeles procesados y lo guardamos en el destino.
 
 \paragraph{Comentarios sobre el signado en operaciones:} Algunas conversiones u operaciones no existen para n\'umeros sin signo, esto puede generar problemas si lo n\'umeros sin signo sobre los que se quiere operar son tan grandes que su representaci\'on binaria tiene el bit mas significativo en 1, pues en su interpretaci\'on signada serian negativos.
 \paragraph{}Los n\'umeros mas grande sobre los que trabajamos son $B$ y $componente(px) * 0,9 + B/2$. Si todas las componentes de $m[ii][jj]$ valen 255 $\Rightarrow B = 4*255/4 = 255$. Luego $componente(px) * 0,9 + B/2 \simeq  230 + 126 \simeq 356$. Como todas las operaciones son realizadas luego de convertir los datos al menos a words tenemos los suficientes bits para representar $356$ sin usar el bit mas significativo.
@@ -198,21 +196,32 @@ Con esto tenemos nuestros 4 pixeles procesados. Por \'ultimo queda realizar 4 co
 
 \paragraph{} La matriz se recorre de manera similar a la implementaci\'on en C, pero en cada iteraci\'on se modifican 2 pixeles. Utilizamos las herramientas de SIMD para levantar 3 filas ($i-1$, $i$ y $i+1$) de 4 pixeles, re ordenar los datos y luego operar. Nos referiremos a cada una de estas filas con mediante los nombres $R_{i-1}$, $R_i$ y $R_{i+1}$. Llamaremos $px0$, $px1$, $px2$ y $px3$ a los pixeles de cada fila. Modificaremos $px1$ y $px2$ de $R_i$.
 
-\paragraph{ii:} Con el objetivo de realizar $m[ii][j-1] - m[ii][j+1]$ mediante restas horizontales armamos 2 mascaras, una para procesar los datos de $px1$ y otra para $px2$. Esta mascara adem\'as extiende los datos de byte a words con ceros.
+\paragraph{ii:} Con el objetivo de realizar $m[ii][j-1] - m[ii][j+1]$ mediante restas horizontales armamos 2 mascaras, una para procesar los datos de $px1$ y otra para $px2$. Esta mascara adem\'as extiende los datos de byte a words con ceros. A continuaci\'on mostraremos la mascara para procesar las operaciones de $px1$ y $px2$.
  
 
 
 \begin{align*}
 	R_i &= [\, \, \, \, A_3 \, ,\, \, \, \, \, R_3 ,\, \, \, \, G_3 \, ,\, \, \, \, B_3 \, ,\, \, \, \, A_2 \, ,\, \, \, \, R_2 \, ,\, \, \, \, G_2 \, ,\, \, \, \, B_2 \, , \, \, \, \,  A_1 \, \, , \, \, \, \, R_1 \, , \, \, \, \, G_1 \, , \, \, \, \, B_1 \, , \, \, \, \, A_0 \, \, , \, \, \, \, R_0 \, , \, \, \, \, G_0 \, , \, \, \, \, B_0 \, \,]\\
 	indice &= [0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00]\\
-	mascara_{px1} &= [0x80, 0x05, 0x80, 0x06, 0x80, 0x05, 0x80, 0x04, 0x80, 0x01, 0x80, 0x02, 0x80, 0x01, 0x80, 0x00] \\
+	mascara_{px1} &= [0x80, 0x80, 0x80, 0x80, 0x80, 0x0A, 0x80, 0x02, 0x80, 0x09, 0x80, 0x01, 0x80, 0x08, 0x80, 0x00] 
 \end{align*}
 \hrule
 \begin{align*}
-	pshufb &= [0, 0, R_2, R_0, G_2, G_0, B_2, B_0] \leftarrow \text{en words}
+	pshufb_{px1} &= [0, 0, R_2, R_0, G_2, G_0, B_2, B_0] \leftarrow \text{en words}
 \end{align*} 
 
-\paragraph{} El proceso anterior es aplicado a cada uno de los 3 registros con ambas mascaras. Teniendo los datos acomodados en 6 registros (3 filas para cada pixel) los siguientes pasos son directos y simples. Primero realizamos una resta horizontal en cada uno de ellos consiguiendo $m[ii][j-1] - m[ii][j+1]$ de cada componente, luego aplicamos el valor absoluto y acumulamos los valores de cada componente.
+
+\begin{align*}
+	R_i &= [\, \, \, \, A_3 \, ,\, \, \, \, \, R_3 ,\, \, \, \, G_3 \, ,\, \, \, \, B_3 \, ,\, \, \, \, A_2 \, ,\, \, \, \, R_2 \, ,\, \, \, \, G_2 \, ,\, \, \, \, B_2 \, , \, \, \, \,  A_1 \, \, , \, \, \, \, R_1 \, , \, \, \, \, G_1 \, , \, \, \, \, B_1 \, , \, \, \, \, A_0 \, \, , \, \, \, \, R_0 \, , \, \, \, \, G_0 \, , \, \, \, \, B_0 \, \,]\\
+	indice &= [0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x00]\\
+	mascara_{px2} &= [0x80, 0x80, 0x80, 0x80, 0x80, 0x0E, 0x80, 0x06, 0x80, 0x0D, 0x80, 0x05, 0x80, 0x0C, 0x80, 0x04] 
+\end{align*}
+\hrule
+\begin{align*}
+	pshufb_{px2} &= [0, 0, R_3, R_1, G_3, G_1, B_3, B_1] \leftarrow \text{en words}
+\end{align*} 
+
+\paragraph{} Copiamos $R_{i-1}$, $R_i$ y $R_{i+1}$ en 3 registros, uno para cada uno, luego a los 3 originales aplicamos una mascara y a las 3 copias aplicamos la mascara restante. Teniendo los datos acomodados en 6 registros los siguientes pasos son directos y simples. Primero realizamos una resta horizontal en cada uno de ellos consiguiendo $m[ii][j-1] - m[ii][j+1]$ de cada componente, luego aplicamos el valor absoluto y acumulamos los valores de cada componente.
 
 \paragraph{jj :}En este caso primero operamos y luego reordenamos los datos. Esta vez nuestro iterador es $jj$ y se mueve por $j$ mientras que opera entre las filas $i-1$ e $i+1$. Queremos calcular $m[i-1][jj] - m[i+1][jj]$ para cada componente.
 
@@ -325,7 +334,7 @@ Finalmente solo queda poner el quadword mas bajo de xmmi en la direccion a la qu
 
 \subsubsection{Comparaci\'ones con C}
 
-Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD contra las implementaciones en C con diferentes niveles de optimizaciones. Utilizar SIMD nos permite reducir la cantidad de operaciones ya que se realizan en simultaneo, los accesos a memoria también se ven reducidos porque luego de cargar múltiples pixeles a un registro trabajamos entre registros sin volver a memoria. Creemos que los filtros implementados en ASM deben ser mas r\'apidos que la implementaci\'on en C incluso con sus optimizaciones pues utilizan muchos accesos a memoria y solo modifican un pixel por iteraci\'on.
+Con el objetivo de saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD contra las implementaciones en C con diferentes niveles de optimizaciones. Utilizar SIMD nos permite reducir la cantidad de operaciones ya que se realizan en simultaneo, los accesos a memoria también se ven reducidos porque luego de cargar múltiples pixeles a un registro trabajamos entre registros sin volver a memoria. Creemos que los filtros implementados en ASM deben ser mas r\'apidos que la implementaci\'on en C incluso con sus optimizaciones pues utilizan muchos accesos a memoria y solo modifican un pixel por iteraci\'on.
 
 \subsubsection{Desenrollado de ciclos en Imagen Fantasma}
 
@@ -333,7 +342,7 @@ Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno pa
 
 \subsubsection{Accesos a memoria en Reforzar Brillo}
 
-En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho propósito, modificamos el algoritmo para que en cada iteracion del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar mas y mas ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
+En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho propósito, modificamos el algoritmo para que en cada iteración del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar m\'as y m\'as ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
 
 \subsection{Dise\~no de instancias y aspectos t\'ecnicos}
 
@@ -346,8 +355,6 @@ La computadora en donde corrimos los experimentos cuenta con un procesador Intel
 
 Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
 
-\newpage
-
 \subsection{Experimentaci\'on}
 
 \subsubsection{Comparaciones}
@@ -359,25 +366,18 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
 La figura 3 nos muestra que a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante. Corroborando así, la hipótesis que plateamos sobre todos los filtros.
 
 
-	\begin{figure}[h!]			
+\begin{figure}[h!]			
 			\includegraphics[width=\linewidth]{img/imagenFantasma.png}
 			\caption{ImagenFantasma}
-			%\includegraphics[width=\linewidth]{img/colorBordes.png}
-			%\caption{Color Bordes}
-			%\includegraphics[width=\linewidth]{img/reforzarBrillo.png}
-			%\caption{asdasd}
-		%\caption{Gr\'aficos comparativos de rendimiento entre cada filtro implementado con SIMD y diferentes optimizaciones de su implementaci\'on en C}
-	\end{figure}
+			\includegraphics[width=\linewidth]{img/colorBordes.png}
+			\caption{Color Bordes}
+\end{figure}
 
 
 \begin{figure}[h!]			
-	\includegraphics[width=\linewidth]{img/colorBordes.png}
-	\caption{Color Bordes}
 	\includegraphics[width=\linewidth]{img/reforzarBrillo.png}
 	\caption{Reforzar Brillo}
-	%\caption{Gr\'aficos comparativos de rendimiento entre cada filtro implementado con SIMD y diferentes optimizaciones de su implementaci\'on en C}
 \end{figure}
-
 
 \clearpage
 
