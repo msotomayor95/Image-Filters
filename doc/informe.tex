@@ -325,7 +325,7 @@ Finalmente solo queda poner el quadword mas bajo de xmmi en la direccion a la qu
 
 \subsubsection{Comparaci\'ones con C}
 
-Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD contra las implementaciones en C con diferentes niveles de optimizaciones. Creemos que ASM sera m\'as r\'apido que C incluso con el flag O3.
+Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD contra las implementaciones en C con diferentes niveles de optimizaciones. Utilizar SIMD nos permite reducir la cantidad de operaciones ya que se realizan en simultaneo, los accesos a memoria también se ven reducidos porque luego de cargar múltiples pixeles a un registro trabajamos entre registros sin volver a memoria. Creemos que los filtros implementados en ASM deben ser mas r\'apidos que la implementaci\'on en C incluso con sus optimizaciones pues utilizan muchos accesos a memoria y solo modifican un pixel por iteraci\'on.
 
 \subsubsection{Desenrollado de ciclos en Imagen Fantasma}
 
@@ -333,12 +333,12 @@ Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno pa
 
 \subsubsection{Accesos a memoria en Reforzar Brillo}
 
-En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho proposito, modificamos el algoritmo para que en cada iteracion del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar mas y mas ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
+En este experimento, nos preguntamos cuantos nos cuenta cada acceso a memoria. Para dicho propósito, modificamos el algoritmo para que en cada iteracion del ciclo, se traiga desde memoria cada mascara. Planteamos que a medida que vaya creciendo la imagen, el costo de usar el buffer de memoria va a pesar mas y mas ya que usar la memoria agrega una complejidad mucho mayor que hacer operaciones con registros. 
 
 \subsection{Dise\~no de instancias y aspectos t\'ecnicos}
 
 
-\paragraph{} Para los experimentos de comparaci\'on de rendimiento armamos instancias de imágenes cuyas resoluciones son multiplo de $32*i \times 18*i$, $\forall i \in [1..100]$.
+\paragraph{} Para los experimentos de comparaci\'on de rendimiento armamos instancias de imágenes cuyas resoluciones son múltiplo de $32*i \times 18*i$, $\forall i \in [1..100]$.
 
 
 La computadora en donde corrimos los experimentos cuenta con un procesador Intel Core I5-6200U, con 3MB de cach\'e y $2,30$GHz de frecuencia.
@@ -356,7 +356,7 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
  
  En la figura 2 la implementaci\'on también muestra una ventaja grande sobre las implementaciones optimizadas en C. Probablemente tenga que ver con los accesos a memoria y la cache. En el caso de C hay varios accesos a memoria distintos, en particular en el primer ciclo por filas causando que el primer acceso a memoria potencialmente genere genere un miss en la cache, ademas este proceso se repite por cada pixel a modificar de la imagen. En cambio la implementaci\'on en ASM contiene 3 \'unicos accesos a memoria por iteraci\'on en donde se levantan 4 pixeles de 3 filas diferentes, todas las dem\'as operaciones se hacen entre registros y se procesan 2 pixeles a la vez.  \\
 
- Aca podemos ver que, a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante. Corroborando así, la hipótesis que plateamos sobre todos los filtros.
+La figura 3 nos muestra que a diferencia de los otros filtros, la diferencia entre C y ASM es un poco mas chica. Creemos que esto se debe a que como solamente operamos con enteros, no hay una carga extra al operar con numero en punto flotante. Corroborando así, la hipótesis que plateamos sobre todos los filtros.
 
 
 	\begin{figure}[h!]			
@@ -383,20 +383,32 @@ Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los ex
 
 \subsubsection{Desenrollado de ciclos}
 
-asdasd
+\begin{figure}[h!]
+	\includegraphics[width=\linewidth]{img/BoxplotImagenFantasma.png}
+	\caption{Diferencia de medianas entre Imagen fantasma con ciclos Desenrollados y el filtro original}
+\end{figure}
+
+Podemos observar que todos los valores se posicionan por debajo del 0. Los valores dentro del area Q1 y Q3 indican que el desenrollado de ciclos tiende a usar de 500000 a 2,5 millones de ticks de reloj menos, para ponerlo en perspectiva con $i = 100$ el filtro sin modificar usa 25 millones de ticks, esto supone un ahorro del 10\% cuando se desenrollan 10 ciclos. Incluso los valores at\'ipicos fueron a favor del filtro modificado.
 
 \subsubsection{Accesos a memoria}
 
-Como planteamos anteriormente, tomamos las medianas para cada resolucion y nos fijamos las diferencias entre la implementacion original (A) y la que tiene accesos a memoria en cada iteracion (B).
+Como planteamos anteriormente, tomamos las medianas para cada resolución y nos fijamos las diferencias entre la implementación original (A) y la que tiene accesos a memoria en cada iteración (B).
 
 
 \includegraphics[scale=0.5]{img/BoxplotReforzarBrillo.png}
 
 
-Como podemos ver en el boxplot de diferencias, la mayoria de valores se encuentra por debajo de 0, lo que quiere decir que la implementacion A corrio mas rapido con respecto a B y en un vistazo mas cercano, buscamos en la tabla de valores cuales eran los momentos en los que la implementacion B fue superior a la implementacion A, las cuales fueron en valores chicos y a medida que iban aumentando, corroboramos que efectivamente la diferencia era cada vez mayor, corroborando nuestra hipotesis. 
+Como podemos ver en el boxplot de diferencias, la mayoría de valores se encuentra por debajo de 0, lo que quiere decir que la implementaci\'on B corrió mas rápido con respecto a A. En algunos casos A fue efectivamente superior a B, en un vistazo mas cercano buscamos en la tabla de valores estos casos y solo se daban unos pocos con resoluciones muy chicas ($i < 5$). Creemos que al ser resoluciones tan chicas, hay menos misses en la cache.
 
 \section{Conclusiones}
+En general pudimos corroborar nuestras hip\'otesis. La implementaci\'on en ASM usando las herramientas de SIMD provee un aprovechamiento de los recursos difícil de alcanzar sin entender el contexto del problema.
 
+
+\begin{itemize}
+	\item Incluso con optimizaciones el código implementado en C era mucho mas lento que nuestra implementación en ASM 
+	\item Con el experimento de Desenrollado de ciclos pudimos observar como efectivamente el costo de la predicci\'on de saltos y el overhead de ciclos influye sobre el rendimiento del algoritmo.
+	\item Si bien para imágenes muy chicas el acceso a memoria puede no ser tan costoso, 
+\end{itemize}
 
 \end{document}
 
