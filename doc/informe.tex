@@ -23,7 +23,7 @@
 %\usepackage{makeidx}
 \usepackage{paralist} %itemize inline
 
-%\usepackage{float}
+\usepackage{float}
 \usepackage{amsmath, amsthm, amssymb}
 %\usepackage{amsfonts}
 %\usepackage{sectsty}
@@ -36,7 +36,8 @@
 \usepackage{underscore}
 \usepackage{caratula}
 \usepackage{url}
-
+\usepackage{caption, subcaption}
+\usepackage{placeins}
 
 % ********************************************************* %
 % ~~~~~~~~              Code snippets             ~~~~~~~~~ %
@@ -274,27 +275,55 @@ Una vez que tenemos nuestros b, pasamos a analizar cual b es mayor o menor a los
 
 \subsubsection{Comparaci\'ones con C}
 
-Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD con las implementaciones en C con diferentes niveles de optimizaciones. Creemos que ASM  sera mucho mas rapido, incluso con optimizaciones aplicadas al codigo C. re escribir mas lindo (?) 
+Con el objetivo saber cual de las implementaciones es mas r\'apida compararemos los filtros hechos en ASM utilizando SIMD contra las implementaciones en C con diferentes niveles de optimizaciones. Creemos que ASM sera m\'as r\'apido que C incluso con el flag O3.
 
-\subsubsection{Desenrollado de ciclos}
+\subsubsection{Desenrollado de ciclos en Imagen Fantasma}
+
+Para este filtro desenrollaremos 10 ciclos procesando 40 pixeles por cada uno para luego comprar los resultados con su versi\'on normal. Nuestra hipótesis era que desenrollar ciclos mejora el rendimiento disminuyendo los ticks de clock usados ya que hay menos overhead de ciclos (comparaciones, saltos) y menos predicci\'on de saltos por parte del procesador.
 
 \subsubsection{Accesos a memoria}
 
-
+Utilizamos este experimento
 
 \subsection{Dise\~no de instancias y aspectos t\'ecnicos}
 
 
-\paragraph{} Para los experimentos de comparaci\'on de rendimiento armamos instancias de imagenes cuyas resoluciones son multiplo de $32*i x 18*i$ con $\forall i \in [1..100]$.
+\paragraph{} Para los experimentos de comparaci\'on de rendimiento armamos instancias de imagenes cuyas resoluciones son multiplo de $32*i \times 18*i$, $\forall i \in [1..100]$.
 
 
 La computadora en donde corrimos los experimentos cuenta con un procesador Intel Core I5-6200U, con 3MB de cach\'e y $2,30$GHz de frecuencia.
 
 
-Para evitar outliers corrimos de 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
+Para evitar valores at\'ipicos corrimos de 500 veces cada imagen en todos los experimentos. Adem\'as en el caso de los experimentos de desenrollado de ciclos y costo de accesos a memoria decidimos analizar las diferencias entre las medianas de la resoluci\'on de un filtro original y su modificaci\'on para tener una mejor visualizaci\'on de los datos.
+
+\newpage
+
+\subsection{Experimentaci\'on}
+
+\subsubsection{Comparaciones}
+
+	\begin{figure}[h!]			
+			\includegraphics[width=\linewidth]{img/imagenFantasma.png}
+			\caption{ImagenFantasma}
+			%\includegraphics[width=\linewidth]{img/colorBordes.png}
+			%\caption{Color Bordes}
+			%\includegraphics[width=\linewidth]{img/reforzarBrillo.png}
+			%\caption{asdasd}
+		%\caption{Gr\'aficos comparativos de rendimiento entre cada filtro implementado con SIMD y diferentes optimizaciones de su implementaci\'on en C}
+	\end{figure}
 
 
-\section{Conclusión}
+\begin{figure}[h!]			
+	\includegraphics[width=\linewidth]{img/colorBordes.png}
+	\caption{Color Bordes}
+	\includegraphics[width=\linewidth]{img/reforzarBrillo.png}
+	\caption{Reforzar Brillo}
+	%\caption{Gr\'aficos comparativos de rendimiento entre cada filtro implementado con SIMD y diferentes optimizaciones de su implementaci\'on en C}
+\end{figure}
+
+\FloatBarrier
+
+\section{Conclusiones}
 
 
 \end{document}
